@@ -8,6 +8,6 @@ Addon-Forum: https://thunderbird.topicbox.com/groups/addons/
    * Auto Compress: automatische Komprimierung von Anhängen https://addons.thunderbird.net/de/thunderbird/addon/auto-compress-file/?src=search
    * Mail Redirect: Umleiten von Mails https://addons.thunderbird.net/de/thunderbird/addon/mailredirect/?src=search
    * Stationery: HTML Template https://addons.thunderbird.net/de/thunderbird/addon/mailredirect/?src=search
-   * phoenix-qs@sonn.at: öffnen in SIN
+   * phoenix-qs@sonn.at: Aktsuche/Kontaktsuche öffnen in SIN
    * reply@sonn.at: Automatisches hinzufügen der @ablage
    * Wörterbuch de-AT und EN
