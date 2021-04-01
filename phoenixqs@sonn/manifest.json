@@ -11,8 +11,7 @@
     "permissions": [
       "messagesRead",
       "notifications",
-      "menus",
-      "menus.overrideContext"
+      "menus"
     ],
     "background": {
       "scripts": [
