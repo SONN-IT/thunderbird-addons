@@ -1,7 +1,7 @@
 {
     "name": "SIN Phoenix Quicksearch",
     "description": "Schnellsuche auf Grundlage des aktuellen E-Mails",
-    "version": "2.0-rc.0",
+    "version": "2.0-rc.1",
     "applications": {
       "gecko": {
         "id": "phoenixqs@sonn",
@@ -10,7 +10,9 @@
     },
     "permissions": [
       "messagesRead",
-      "notifications"
+      "notifications",
+      "menus",
+      "menus.overrideContext"
     ],
     "background": {
       "scripts": [
@@ -30,5 +32,11 @@
         "description": "Send a 'phoenixqs_SendToSIN' event"
       }
     },
-    "manifest_version": 2
+    "manifest_version": 2,
+  "icons": {
+    "16": "logo.svg",
+    "32": "logo.svg",
+    "48": "logo.svg",
+    "96": "logo.svg"
+  }
 }

@@ -1,3 +1,10 @@
+browser.menus.create({
+    id: "phoenixqs-SendToSIN",
+    title: "In SIN öffnen Alt+Strg+S",
+    contexts: ["message_list"],
+    async onclick(info) {SendToSIN();},
+});
+
 browser.commands.onCommand.addListener((command) => {
     if (command === "phoenixqs_SendToSIN") {
         SendToSIN();
