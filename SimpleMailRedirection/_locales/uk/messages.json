@@ -1,0 +1,44 @@
+{
+    "extensionName": {
+        "message": "Simple Mail Redirection"
+    },
+    "extensionDescription": {
+        "message": "Дозволити перенаправляти (пересилати) повідомлення іншим адресатам."
+    },
+    "selected": {
+        "message": "Наступна пошта буде перенаправлена:"
+    },
+    "subject": {
+        "message": "Тема"
+    },
+    "from": {
+        "message": "Від"
+    },
+    "date": {
+        "message": "Дата"
+    },
+    "send": {
+        "message": "Надіслати"
+    },
+    "cancel": {
+        "message": "Скасувати"
+    },
+    "close": {
+        "message": "Закрити"
+    },
+    "resent": {
+        "message": "Перенаправити"
+    },
+    "to": {
+        "message": "Кому"
+    },
+    "sendto": {
+        "message": "Переслати у:"
+    },
+    "save": {
+        "message": "Зберегти це повідомлення"
+    },
+    "recipient": {
+        "message": "Одержувачі"
+    }
+}

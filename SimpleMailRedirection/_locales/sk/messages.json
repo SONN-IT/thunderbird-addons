@@ -1,0 +1,44 @@
+{
+    "extensionName": {
+        "message": "Simple Mail Redirection"
+    },
+    "extensionDescription": {
+        "message": "Umožní presmerovanie e-mailových správ na iných príjemcov."
+    },
+    "selected": {
+        "message": "Nasledovné správy budú presmerované:"
+    },
+    "subject": {
+        "message": "Predmet"
+    },
+    "from": {
+        "message": "Od"
+    },
+    "date": {
+        "message": "Dátum"
+    },
+    "send": {
+        "message": "Odoslať"
+    },
+    "cancel": {
+        "message": "Zrušiť"
+    },
+    "close": {
+        "message": "Zavrieť okno"
+    },
+    "resent": {
+        "message": "Presmerovať"
+    },
+    "to": {
+        "message": "Komu"
+    },
+    "sendto": {
+        "message": "Odoslať kam:"
+    },
+    "save": {
+        "message": "Uložiť túto správu"
+    },
+    "recipient": {
+        "message": "Adresát"
+    }
+}

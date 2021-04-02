@@ -1,0 +1,44 @@
+{
+    "extensionName": {
+        "message": "Simple Mail Redirection"
+    },
+    "extensionDescription": {
+        "message": "Permitir redirigir (o \"rebotar\") mensajes de correo a otros destinatarios."
+    },
+    "selected": {
+        "message": "Los siguientes mensajes serán redirigidos:"
+    },
+    "subject": {
+        "message": "Asunto"
+    },
+    "from": {
+        "message": "Remitente"
+    },
+    "date": {
+        "message": "Fecha"
+    },
+    "send": {
+        "message": "Enviar"
+    },
+    "cancel": {
+        "message": "Cancelar"
+    },
+    "close": {
+        "message": "Cerrar"
+    },
+    "resent": {
+        "message": "Redirigir"
+    },
+    "to": {
+        "message": "A"
+    },
+    "sendto": {
+        "message": "Enviar este elemento a:"
+    },
+    "save": {
+        "message": "Guardar este mensaje"
+    },
+    "recipient": {
+        "message": "Destinatario"
+    }
+}

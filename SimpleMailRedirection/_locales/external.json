@@ -1,0 +1,79 @@
+{
+  "extensionName": {
+    "default": "Simple Mail Redirection"
+  },
+  "selected": {
+      "default": "Selected mails",
+      "_file": "multimessageview.dtd",
+      "_key": "selectedmessages.label",
+      "file": "D:/installed/Netz/Mozilla/ThunderbirdExtensions/mailredirect-0.10.9-sm+tb/chrome/locale/%lang%/mailredirect-compose.dtd",
+      "key": "bounceMailsLabel.label",
+      "de": "Ausgewählte Mails"
+  },
+  "resent": {
+      "default": "Redirect to",
+      "file": "D:/installed/Netz/Mozilla/ThunderbirdExtensions/mailredirect-0.10.9-sm+tb/chrome/locale/%lang%/mailredirect.dtd",
+      "key": "bounceCommand.label",
+      "_de": "Umleiten"
+  },
+  "sendto": {
+      "default": "Send to",
+      "file": "../global/appPicker.dtd",
+      "key": "SendMsg.label",
+      "_de": "Senden an"
+  },
+  "recipient": {
+      "default": "Send to:",
+      "file": "messenger.dtd",
+      "key": "recipientColumn.label",
+      "_de": "Senden an:"
+  },
+  "subject": {
+      "default": "Subject",
+      "file": "messenger.dtd",
+      "key": "subjectColumn.label",
+      "_de": "Betreff"
+  },
+  "from": {
+      "default": "From",
+      "file": "messenger.dtd",
+      "key": "fromColumn.label",
+      "_de": "Von"
+  },
+  "to": {
+      "default": "To",
+      "file": "messengercompose/messengercompose.dtd",
+      "key": "toAddr2.label",
+      "_de": "An"
+  },
+  "save": {
+      "default": "Save this message",
+      "file": "messengercompose/messengercompose.dtd",
+      "key": "saveButton.tooltip",
+      "_de": "Diese Nachricht speichern"
+  },
+  "date": {
+      "default": "Date",
+      "file": "messenger.dtd",
+      "key": "dateColumn.label",
+      "_de": "Datum"
+  },
+  "send": {
+      "default": "Send",
+      "file": "messengercompose/messengercompose.dtd",
+      "key": "sendButton.label",
+      "_de": "Senden"
+  },
+  "cancel": {
+      "default": "Cancel",
+      "file": "accountCreation.dtd",
+      "key": "cancel.label",
+      "_de": "Abbrechen"
+  },
+  "close": {
+      "default": "Close",
+      "file": "messengercompose/messengercompose.dtd",
+      "key": "closeCmd.label",
+      "_de": "Schließen"
+  }
+}

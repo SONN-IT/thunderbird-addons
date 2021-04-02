@@ -1,0 +1,44 @@
+{
+    "extensionName": {
+        "message": "Simple Mail Redirection"
+    },
+    "extensionDescription": {
+        "message": "提供重定向（转送）邮件消息至其他收件人的功能。"
+    },
+    "selected": {
+        "message": "下列邮件将会被重定向："
+    },
+    "subject": {
+        "message": "主题"
+    },
+    "from": {
+        "message": "来自"
+    },
+    "date": {
+        "message": "日期"
+    },
+    "send": {
+        "message": "发送"
+    },
+    "cancel": {
+        "message": "取消"
+    },
+    "close": {
+        "message": "关闭"
+    },
+    "resent": {
+        "message": "重定向"
+    },
+    "to": {
+        "message": "收件人"
+    },
+    "sendto": {
+        "message": "发送此项目到："
+    },
+    "save": {
+        "message": "保存此消息"
+    },
+    "recipient": {
+        "message": "收件人"
+    }
+}

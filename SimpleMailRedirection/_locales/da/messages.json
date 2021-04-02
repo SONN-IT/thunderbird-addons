@@ -1,0 +1,44 @@
+{
+    "extensionName": {
+        "message": "Simple Mail Redirection"
+    },
+    "extensionDescription": {
+        "message": "Giver mulighed for at omdirigere (også kendt som \"remail\") meddelelser til andre modtagere."
+    },
+    "selected": {
+        "message": "Følgende meddelelser vil blive omdirigeret:"
+    },
+    "subject": {
+        "message": "Emne"
+    },
+    "from": {
+        "message": "Fra"
+    },
+    "date": {
+        "message": "Dato"
+    },
+    "send": {
+        "message": "Send"
+    },
+    "cancel": {
+        "message": "Annuller"
+    },
+    "close": {
+        "message": "Luk"
+    },
+    "resent": {
+        "message": "Omdiriger"
+    },
+    "to": {
+        "message": "Til"
+    },
+    "sendto": {
+        "message": "Åbn med:"
+    },
+    "save": {
+        "message": "Gem denne meddelelse"
+    },
+    "recipient": {
+        "message": "Til"
+    }
+}

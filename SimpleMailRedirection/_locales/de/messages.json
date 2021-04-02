@@ -1,0 +1,44 @@
+{
+    "extensionName": {
+        "message": "Simple Mail Redirection"
+    },
+    "extensionDescription": {
+        "message": "Ermöglicht das erneute Senden (auch als Umleiten bezeichnet) von E-Mail Nachrichten."
+    },
+    "selected": {
+        "message": "Folgende Nachrichten werden umgeleitet:"
+    },
+    "subject": {
+        "message": "Betreff"
+    },
+    "from": {
+        "message": "Von"
+    },
+    "date": {
+        "message": "Datum"
+    },
+    "send": {
+        "message": "Senden"
+    },
+    "cancel": {
+        "message": "Abbrechen"
+    },
+    "close": {
+        "message": "Schließen"
+    },
+    "resent": {
+        "message": "Umleiten"
+    },
+    "to": {
+        "message": "An"
+    },
+    "sendto": {
+        "message": "Diesen Eintrag senden an:"
+    },
+    "save": {
+        "message": "Diese Nachricht speichern"
+    },
+    "recipient": {
+        "message": "Empfänger"
+    }
+}

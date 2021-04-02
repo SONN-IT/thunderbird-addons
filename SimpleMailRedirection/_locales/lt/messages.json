@@ -1,0 +1,44 @@
+{
+    "extensionName": {
+        "message": "Simple Mail Redirection"
+    },
+    "extensionDescription": {
+        "message": "Suteikia galimybę nukreipti (persiųsti) gautus laiškus kitiems adresatams, nekeičiant antraštės „Kam“."
+    },
+    "selected": {
+        "message": "Bus nukreipti šie elektroniniai laiškai:"
+    },
+    "subject": {
+        "message": "Tema"
+    },
+    "from": {
+        "message": "Siuntėjas"
+    },
+    "date": {
+        "message": "Data ir laikas"
+    },
+    "send": {
+        "message": "Išsiųsti"
+    },
+    "cancel": {
+        "message": "Atsisakyti"
+    },
+    "close": {
+        "message": "Užverti"
+    },
+    "resent": {
+        "message": "Nukreipti"
+    },
+    "to": {
+        "message": "Gavėjas"
+    },
+    "sendto": {
+        "message": "Atverti failą šia programa:"
+    },
+    "save": {
+        "message": "Įrašyti šį laišką"
+    },
+    "recipient": {
+        "message": "Gavėjas"
+    }
+}

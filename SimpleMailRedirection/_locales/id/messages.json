@@ -1,0 +1,44 @@
+{
+    "extensionName": {
+        "message": "Simple Mail Redirection"
+    },
+    "extensionDescription": {
+        "message": "Memungkinkan untuk mengarahkan (a.k.a \"remail\") mail ke penerima lain."
+    },
+    "selected": {
+        "message": "Mengikuti mail akan diarahkan:"
+    },
+    "subject": {
+        "message": "Subjek"
+    },
+    "from": {
+        "message": "Dari"
+    },
+    "date": {
+        "message": "Tanggal"
+    },
+    "send": {
+        "message": "Kirim"
+    },
+    "cancel": {
+        "message": "Batal"
+    },
+    "close": {
+        "message": "Tutup"
+    },
+    "resent": {
+        "message": "Redirect"
+    },
+    "to": {
+        "message": "Kepada"
+    },
+    "sendto": {
+        "message": "Kirim item ini ke:"
+    },
+    "save": {
+        "message": "Simpan pesan ini"
+    },
+    "recipient": {
+        "message": "Penerima"
+    }
+}

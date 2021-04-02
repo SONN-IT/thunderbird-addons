@@ -1,0 +1,44 @@
+{
+    "extensionName": {
+        "message": "Simple Mail Redirection"
+    },
+    "extensionDescription": {
+        "message": "Rozszerzenie umożliwia przekierowanie wiadomości do innych adresatów."
+    },
+    "selected": {
+        "message": "Przekierowywane wiadomości"
+    },
+    "subject": {
+        "message": "Temat"
+    },
+    "from": {
+        "message": "Nadawca"
+    },
+    "date": {
+        "message": "Data"
+    },
+    "send": {
+        "message": "Wyślij"
+    },
+    "cancel": {
+        "message": "Anuluj"
+    },
+    "close": {
+        "message": "Zamknij"
+    },
+    "resent": {
+        "message": "Przekieruj"
+    },
+    "to": {
+        "message": "Do"
+    },
+    "sendto": {
+        "message": "Wyślij ten element do:"
+    },
+    "save": {
+        "message": "Zapisz wiadomość jako"
+    },
+    "recipient": {
+        "message": "Adresat"
+    }
+}

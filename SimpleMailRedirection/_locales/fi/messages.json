@@ -1,0 +1,44 @@
+{
+    "extensionName": {
+        "message": "Simple Mail Redirection"
+    },
+    "extensionDescription": {
+        "message": "Salli sähköpostiviestien välitys (a.k.a. \"remail\") toisille vastaanottajille."
+    },
+    "selected": {
+        "message": "Seuraavat viestit uudelleenohjataan:"
+    },
+    "subject": {
+        "message": "Aihe"
+    },
+    "from": {
+        "message": "Lähettäjä"
+    },
+    "date": {
+        "message": "Päiväys"
+    },
+    "send": {
+        "message": "Lähetä"
+    },
+    "cancel": {
+        "message": "Peruuta"
+    },
+    "close": {
+        "message": "Sulje"
+    },
+    "resent": {
+        "message": "Uudelleenohjaa"
+    },
+    "to": {
+        "message": "Vastaanottaja"
+    },
+    "sendto": {
+        "message": "Lähetä kohteeseen:"
+    },
+    "save": {
+        "message": "Tallenna tämä viesti"
+    },
+    "recipient": {
+        "message": "Vastaanottaja"
+    }
+}

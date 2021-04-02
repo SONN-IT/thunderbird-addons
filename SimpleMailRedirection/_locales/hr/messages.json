@@ -1,0 +1,44 @@
+{
+    "extensionName": {
+        "message": "Simple Mail Redirection"
+    },
+    "extensionDescription": {
+        "message": "Dozvoljava preusmjeravanje (ili \"remail\") poruka e-pošte drugim primateljima."
+    },
+    "selected": {
+        "message": "Sljedeće poruke će biti preusmjerene:"
+    },
+    "subject": {
+        "message": "Naslov"
+    },
+    "from": {
+        "message": "Šalje"
+    },
+    "date": {
+        "message": "Datum"
+    },
+    "send": {
+        "message": "Pošalji"
+    },
+    "cancel": {
+        "message": "Otkaži"
+    },
+    "close": {
+        "message": "Zatvori"
+    },
+    "resent": {
+        "message": "Preusmjeri"
+    },
+    "to": {
+        "message": "Prima"
+    },
+    "sendto": {
+        "message": "Pošalji ovu stavku za:"
+    },
+    "save": {
+        "message": "Spremi ovu poruku"
+    },
+    "recipient": {
+        "message": "Primatelj"
+    }
+}

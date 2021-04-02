@@ -1,0 +1,44 @@
+{
+    "extensionName": {
+        "message": "Simple Mail Redirection"
+    },
+    "extensionDescription": {
+        "message": "Más címzettnek üzeneteket átirányítás."
+    },
+    "selected": {
+        "message": "Következő üzenetek lesznek átirányítva:"
+    },
+    "subject": {
+        "message": "Tárgy"
+    },
+    "from": {
+        "message": "Feladó"
+    },
+    "date": {
+        "message": "Dátum"
+    },
+    "send": {
+        "message": "Küldés"
+    },
+    "cancel": {
+        "message": "Mégse"
+    },
+    "close": {
+        "message": "Bezárás"
+    },
+    "resent": {
+        "message": "Átirányítás"
+    },
+    "to": {
+        "message": "Címzett"
+    },
+    "sendto": {
+        "message": "Elem küldése ennek:"
+    },
+    "save": {
+        "message": "Az üzenet mentése"
+    },
+    "recipient": {
+        "message": "Címzett"
+    }
+}

@@ -1,0 +1,44 @@
+{
+    "extensionName": {
+        "message": "Simple Mail Redirection"
+    },
+    "extensionDescription": {
+        "message": "允許重新導向（又稱為「remail」）郵件訊息給其他收件者。"
+    },
+    "selected": {
+        "message": "下列郵件將會被重新導向："
+    },
+    "subject": {
+        "message": "主旨"
+    },
+    "from": {
+        "message": "從"
+    },
+    "date": {
+        "message": "日期"
+    },
+    "send": {
+        "message": "傳送"
+    },
+    "cancel": {
+        "message": "取消"
+    },
+    "close": {
+        "message": "關閉"
+    },
+    "resent": {
+        "message": "重新導向"
+    },
+    "to": {
+        "message": "到"
+    },
+    "sendto": {
+        "message": "傳送此項目到:"
+    },
+    "save": {
+        "message": "儲存此訊息"
+    },
+    "recipient": {
+        "message": "收件者"
+    }
+}

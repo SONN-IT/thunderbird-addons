@@ -1,0 +1,44 @@
+{
+    "extensionName": {
+        "message": "Simple Mail Redirection"
+    },
+    "extensionDescription": {
+        "message": "Consente di reindirizzare i messaggi di posta elettronica"
+    },
+    "selected": {
+        "message": "I seguenti messaggi verranno reindirizzati:"
+    },
+    "subject": {
+        "message": "Oggetto"
+    },
+    "from": {
+        "message": "Mittente"
+    },
+    "date": {
+        "message": "Data"
+    },
+    "send": {
+        "message": "Invia"
+    },
+    "cancel": {
+        "message": "Annulla"
+    },
+    "close": {
+        "message": "Chiudi"
+    },
+    "resent": {
+        "message": "Reindirizza…"
+    },
+    "to": {
+        "message": "A"
+    },
+    "sendto": {
+        "message": "Invia questo elemento a:"
+    },
+    "save": {
+        "message": "Salva questo messaggio"
+    },
+    "recipient": {
+        "message": "Destinatario"
+    }
+}

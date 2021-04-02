@@ -1,0 +1,44 @@
+{
+    "extensionName": {
+        "message": "Simple Mail Redirection"
+    },
+    "extensionDescription": {
+        "message": "Омогућава преусмеравање имејлова другим примаоцима."
+    },
+    "selected": {
+        "message": "Следећи имејлови ће се преусмерити:"
+    },
+    "subject": {
+        "message": "Наслов"
+    },
+    "from": {
+        "message": "Шаље"
+    },
+    "date": {
+        "message": "Датум"
+    },
+    "send": {
+        "message": "Пошаљи"
+    },
+    "cancel": {
+        "message": "Откажи"
+    },
+    "close": {
+        "message": "Затвори"
+    },
+    "resent": {
+        "message": "Преусмери"
+    },
+    "to": {
+        "message": "За"
+    },
+    "sendto": {
+        "message": "Проследи ову ставку:"
+    },
+    "save": {
+        "message": "Сачувај ову поруку"
+    },
+    "recipient": {
+        "message": "Прималац"
+    }
+}

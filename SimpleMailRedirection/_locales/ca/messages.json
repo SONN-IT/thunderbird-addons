@@ -1,0 +1,44 @@
+{
+    "extensionName": {
+        "message": "Simple Mail Redirection"
+    },
+    "extensionDescription": {
+        "message": "Permetre redirigir o \"rebotar\" missatges de correu a d'altres destinataris."
+    },
+    "selected": {
+        "message": "Es redireccionaran els següents correus:"
+    },
+    "subject": {
+        "message": "Assumpte"
+    },
+    "from": {
+        "message": "Remitent"
+    },
+    "date": {
+        "message": "Data"
+    },
+    "send": {
+        "message": "Envia"
+    },
+    "cancel": {
+        "message": "Cancel·la"
+    },
+    "close": {
+        "message": "Tanca"
+    },
+    "resent": {
+        "message": "Redirigir"
+    },
+    "to": {
+        "message": "A"
+    },
+    "sendto": {
+        "message": "Envia aquest element a:"
+    },
+    "save": {
+        "message": "Desa aquest missatge"
+    },
+    "recipient": {
+        "message": "Destinatari"
+    }
+}

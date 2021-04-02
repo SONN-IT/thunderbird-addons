@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <script src="/l10n.js"></script>
+    <script src="/smr_addresses.js"></script>
+    <title>__MSG_extensionName__</title>
+		<link rel="stylesheet" href="chrome://global/skin/in-content/common.css">
+		<link rel="stylesheet" href="smr_addresses.css">
+  </head>
+  
+  <body id="body" style="display:none">
+    <div style="display:flex; margin-top:1ex; overflow: auto;">
+      <label>__MSG_from__:</label>
+      <select id="accountsel" size="1">
+      </select>
+			<div id="changefrombox" style="display: none;">
+				<input type="checkbox" id="changefrom"/><label for="changefrom">Change "From:" header</label>
+			</div>
+    </div>
+    <div>
+      <div style="float: right;"><input type="checkbox" id="copy" value="copy"/>
+        <label for="copy">__MSG_save__</label></div>
+      <p style="font-weight: bold">__MSG_selected__</p>
+      <div style="display:flex; margin-top:1ex; overflow: auto; max-height: 30em;">
+      <table id="mails" style="width: max-content; border-collapse: collapse;"><thead>
+        <tr><th></th><th>__MSG_subject__</th><th class="pb"></th><th>__MSG_from__</th><th>__MSG_date__</th></tr>
+      </thead><tbody></tbody></table>
+      </div>
+    </div>
+
+    <div>
+      <span class="tooltip" data-tooltip="Open addressbook">
+        <img id="ab" src="chrome://messenger/skin/icons/address.svg" 
+        title="Open addressbook" style="float: right;"/>
+      </span>
+      <p style="font-weight: bold">__MSG_sendto__</p>
+      <div style="margin-top:1ex; _height: 200px; overflow-y: auto;">
+        <!-- no whitespace between div, select and input AND /div's -->
+        <div id="address" class="address"><select size="1">
+            <option value="TO">__MSG_to__:</option>
+            <option value="CC">Cc:</option>
+            <option value="BCC">Bcc:</option>
+          </select><input id="email" type="text" class="empty"
+              placeholder="__MSG_recipient__..." autocomplete="off" />
+        </div></div>
+    </div>
+    
+    <div style="margin: 1em;">
+			<input type="button" id="addressOK" value="__MSG_send__" disabled="true">
+			<input type="button" id="addressCANCEL" value="__MSG_cancel__">
+			<span id="debugbox" style="display: none;">
+				<input type="checkbox" id="debug"/><label for="debug">Debug</label>
+			</span>
+
+		</div>
+  </body>
+</html>

@@ -1,0 +1,44 @@
+{
+    "extensionName": {
+        "message": "Simple Mail Redirection"
+    },
+    "extensionDescription": {
+        "message": "Låter dig omdirigera e-postmeddelanden till andra mottagare."
+    },
+    "selected": {
+        "message": "Följande brev kommer att omdirigeras:"
+    },
+    "subject": {
+        "message": "Ämne"
+    },
+    "from": {
+        "message": "Från"
+    },
+    "date": {
+        "message": "Datum"
+    },
+    "send": {
+        "message": "Skicka"
+    },
+    "cancel": {
+        "message": "Avbryt"
+    },
+    "close": {
+        "message": "Stäng"
+    },
+    "resent": {
+        "message": "Omdirigera"
+    },
+    "to": {
+        "message": "Till"
+    },
+    "sendto": {
+        "message": "Skicka till:"
+    },
+    "save": {
+        "message": "Sparar meddelandet"
+    },
+    "recipient": {
+        "message": "Mottagare"
+    }
+}

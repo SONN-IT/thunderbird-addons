@@ -1,0 +1,44 @@
+{
+    "extensionName": {
+        "message": "Simple Mail Redirection"
+    },
+    "extensionDescription": {
+        "message": "Lejoni të ridrejtohen (a.k.a. \"remail\") mesazhe poste te marrës të tjerë."
+    },
+    "selected": {
+        "message": "Do të ridrejtohen mesazhet vijues:"
+    },
+    "subject": {
+        "message": "Subjekt"
+    },
+    "from": {
+        "message": "Nga"
+    },
+    "date": {
+        "message": "Datë"
+    },
+    "send": {
+        "message": "Dërgoje"
+    },
+    "cancel": {
+        "message": "Anuloje"
+    },
+    "close": {
+        "message": "Mbylleni"
+    },
+    "resent": {
+        "message": "Ridrejtoje"
+    },
+    "to": {
+        "message": "Për"
+    },
+    "sendto": {
+        "message": "Dërgoje këtë objekt te:"
+    },
+    "save": {
+        "message": "Ruajeni këtë mesazh"
+    },
+    "recipient": {
+        "message": "Marrës"
+    }
+}
