@@ -2,7 +2,7 @@ browser.menus.create({
     id: "phoenixqs-SendToSIN",
     title: "In SIN öffnen Alt+Strg+S",
     contexts: ["message_list"],
-    async onclick(info) {SendToSIN();},
+    async onclick() {SendToSIN();},
 });
 
 browser.commands.onCommand.addListener((command) => {
@@ -49,6 +49,7 @@ function SendToSIN() {
                     browser.windows.openDefaultBrowser(qsurl + addr_match);
                     console.log(addr_match);
                 } else {
+                    //TODO replace notification with popup, if no match found
                     browser.notifications.create({
                         "type": "basic",
                         "title": "Thunderbird - SIN Suche",
