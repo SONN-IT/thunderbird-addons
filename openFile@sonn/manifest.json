@@ -1,0 +1,51 @@
+{
+    "name": "Aktenordner öffnen",
+    "description": "alle Aktenordner ",
+    "version": "2.0-rc.0",
+    "applications": {
+      "gecko": {
+        "id": "openFile@sonn",
+        "strict_min_version": "78.0"
+      }
+    },
+    "permissions": [
+      "messagesRead",
+      "notifications",
+      "menus"
+    ],
+    "background": {
+      "scripts": [
+        "background.js"
+      ]
+    },
+    "message_display_action": {
+      "default_title": "alle Aktenordner im Betreff öffnen",
+      "default_icon": "logo.svg",
+      "default_label": "Akt öffen"
+    },
+    "experiment_apis": {
+      "OpenFolderApi": {
+        "schema": "OpenFolderApi.json",
+        "parent": {
+          "scopes": ["addon_parent"],
+          "paths" : [["OpenFolder"]],
+          "script" : "OpenFolderApi.js"
+        }
+      }
+    },
+    "commands": {
+      "Event-SONN_openFile": {
+        "suggested_key": {
+          "default": "Ctrl+Alt+D"
+        },
+        "description": "Send a 'Event-SONN_openFile' event"
+      }
+    },
+    "manifest_version": 2,
+  "icons": {
+    "16": "logo.svg",
+    "32": "logo.svg",
+    "48": "logo.svg",
+    "96": "logo.svg"
+  }
+}

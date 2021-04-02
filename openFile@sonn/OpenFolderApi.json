@@ -1,0 +1,19 @@
+[
+    {
+      "namespace": "OpenFolder",
+      "description": "Open Folder",
+      "functions": [
+        {
+          "name": "showItemInFolder",
+          "type": "function",
+          "description": "Shows the file in the systems default file manager",
+          "async": true,
+          "parameters": [{
+              "name": "path",
+              "type": "string",
+              "description": "The path to the file to be shown."
+          }]
+        }
+      ]
+    }
+]
