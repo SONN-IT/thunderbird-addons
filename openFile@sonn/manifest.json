@@ -1,7 +1,7 @@
 {
     "name": "Aktenordner öffnen",
     "description": "alle Aktenordner ",
-    "version": "2.0-rc.0",
+    "version": "2.0-rc.1",
     "applications": {
       "gecko": {
         "id": "openFile@sonn",
@@ -21,15 +21,23 @@
     "message_display_action": {
       "default_title": "alle Aktenordner im Betreff öffnen",
       "default_icon": "logo.svg",
-      "default_label": "Akt öffen"
+      "default_label": "Akt öffnen"
     },
     "experiment_apis": {
       "OpenFolderApi": {
-        "schema": "OpenFolderApi.json",
+        "schema": "api/OpenFolderApi.json",
         "parent": {
           "scopes": ["addon_parent"],
           "paths" : [["OpenFolder"]],
-          "script" : "OpenFolderApi.js"
+          "script" : "api/OpenFolderApi.js"
+        }
+      },
+      "LegacyPrefs": {
+        "schema": "api/legacyPrefs.json",
+        "parent": {
+          "scopes": ["addon_parent"],
+          "paths": [["LegacyPrefs"]],
+          "script": "api/legacyPrefs.js"
         }
       }
     },
