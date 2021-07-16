@@ -11,3 +11,7 @@ Addon-Forum: https://thunderbird.topicbox.com/groups/addons/
    * phoenix-qs@sonn.at: Aktsuche/Kontaktsuche öffnen in SIN
    * reply@sonn.at: Automatisches hinzufügen der @ablage
    * Wörterbuch de-AT und EN
+
+## Addon xpi erstellen
+   * cd addon-dir
+   * zip -r -FS ../my-extension.zip * --exclude '*.git*' (--exclude optional)

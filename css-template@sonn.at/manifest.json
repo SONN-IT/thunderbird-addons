@@ -1,0 +1,20 @@
+{
+  "name": "CSS Tempalte",
+  "description": "SONN Email Formatvorlage",
+  "version": "1.0-rc.1",
+  "applications": {
+    "gecko": {
+      "id": "css-template@sonn.at",
+      "strict_min_version": "74.0b2"
+    }
+  },
+  "permissions": [
+    "compose"
+  ],
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "manifest_version": 2
+}
