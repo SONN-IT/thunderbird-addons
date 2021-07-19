@@ -1,0 +1,12 @@
+body {
+    min-height: 400px;
+    overflow-y: hidden; /* Hide scrollbars */
+}
+
+.invalid {
+    color: red !important;
+}
+
+.address>span {
+    width: 25%;
+}

@@ -7,19 +7,50 @@
     <title>__MSG_extensionName__</title>
 		<link rel="stylesheet" href="chrome://global/skin/in-content/common.css">
 		<link rel="stylesheet" href="smr_addresses.css">
-  </head>
+    		<link rel="stylesheet" href="sonn.css">
+</head>
   
-  <body id="body" style="display:none">
-    <div style="display:flex; margin-top:1ex; overflow: auto;">
-      <label>__MSG_from__:</label>
-      <select id="accountsel" size="1">
-      </select>
-			<div id="changefrombox" style="display: none;">
-				<input type="checkbox" id="changefrom"/><label for="changefrom">Change "From:" header</label>
-			</div>
+  <!--<body id="body" style="display:block">-->
+<body id="body" style="display:none">
+<div class="navbar" style="margin: 0;">
+    <button id="test-delete"  class="button">
+        <img src="chrome://messenger/skin/icons/address.svg"
+             title="test svg" style="float: left; margin-right: 5px;"/>
+        Adressen entf.
+    </button>
+    <div class="dropdown">
+        <button id="extrasAblageButton" class="button">@ablage hinzufügen</button>
+        <div id="myDropdown" class="dropdown-content">
+            <h1>Bitte die Akten angeben <span id="rangeLimit">(Limit 30)</span>:</h1>
+            <div id="rangeFrom">Von:
+                <input id="rangeFromInput" class="extrasAblageInput" type="text"
+                       placeholder="r60000" autocomplete="off" />
+            </div>
+            <div id="rangeTo">
+                <span>Bis:</span>
+                <input id="rangeToInput" class="extrasAblageInput" type="text"
+                       placeholder="r60029" autocomplete="off" />
+            </div>
+            <div id="hashTag">
+                <h1>Hashtag:</h1>
+                <input id="hashtagInput" class="extrasAblageInput" type="text"
+                       placeholder="Veroeffentlichungsbericht" autocomplete="off" />
+            </div>
+            <input type="button" id="extrasAblageSubmit" value="Übernehmen" disabled="true">
+        </div>
     </div>
-    <div>
-      <div style="float: right;"><input type="checkbox" id="copy" value="copy"/>
+    <hr style="margin-top: 0;">
+</div>
+<div class="fromSelect" style="display:flex; margin-top:1ex; overflow: auto;">
+    <label>__MSG_from__:</label>
+    <select id="accountsel" size="1">
+    </select>
+    <div id="changefrombox" style="display: none;">
+        <input type="checkbox" id="changefrom"/><label for="changefrom">Change "From:" header</label>
+    </div>
+</div>
+<div>
+    <div style="float: right;"><input type="checkbox" id="copy" value="copy"/>
         <label for="copy">__MSG_save__</label></div>
       <p style="font-weight: bold">__MSG_selected__</p>
       <div style="display:flex; margin-top:1ex; overflow: auto; max-height: 30em;">
@@ -29,19 +60,15 @@
       </div>
     </div>
 
-    <div>
-      <span class="tooltip" data-tooltip="Open addressbook">
-        <img id="ab" src="chrome://messenger/skin/icons/address.svg" 
-        title="Open addressbook" style="float: right;"/>
-      </span>
-      <p style="font-weight: bold">__MSG_sendto__</p>
-      <div style="margin-top:1ex; _height: 200px; overflow-y: auto;">
+<div>
+    <p style="font-weight: bold">__MSG_sendto__</p>
+    <div style="margin-top:1ex; _height: 200px; overflow-y: auto;">
         <!-- no whitespace between div, select and input AND /div's -->
-        <div id="address" class="address"><select size="1">
+        <div id="address" class="address"><select>
             <option value="TO">__MSG_to__:</option>
             <option value="CC">Cc:</option>
             <option value="BCC">Bcc:</option>
-          </select><input id="email" type="text" class="empty"
+          </select><input id="email" type="text" class="empty" autofocus="true"
               placeholder="__MSG_recipient__..." autocomplete="off" />
         </div></div>
     </div>
@@ -53,6 +80,6 @@
 				<input type="checkbox" id="debug"/><label for="debug">Debug</label>
 			</span>
 
-		</div>
-  </body>
+</div>
+</body>
 </html>

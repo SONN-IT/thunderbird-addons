@@ -16,6 +16,7 @@ const MAX_HEADER_LENGTH = 16384;
 
 var prefs={'debug': true};
 var windows=new Object;
+var appVersion;
 
 //debug('entered');
 var smr = class extends ExtensionCommon.ExtensionAPI {
@@ -99,8 +100,11 @@ debug('msgHdr.folder.URL='+msgHdr.folder.folderURL+' folder.URL='+folder.folderU
 debug('..already resent!');
 /*
 debug('Test: remove redirected indicator from old version');
+//up to TB84
 let msg = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
 msg.appendElement(msgHdr, false);
+//since TB85
+let msg=[msgHdr];
 msgHdr.folder.removeKeywordsFromMessages(msg, "resent");
 msgHdr.folder.addKeywordsToMessages(msg, "redirected");
 */
@@ -146,6 +150,10 @@ debug('copy msg to '+identity.fccFolder);
               msgCompFields.fcc = "nocopy://";
             }
             msgCompFields.fcc2 = "nocopy://";
+						let messageId = Cc["@mozilla.org/messengercompose/computils;1"].
+              createInstance(Ci.nsIMsgCompUtils).
+              msgGenerateMessageId(identity);
+						msgCompFields.messageId=messageId;
             resentMessage(mh.id, windowId, msgUri, accountId, msgCompFields, identity);
           }); //end loop over mhs
 				},
@@ -172,7 +180,7 @@ debug('cb: try loading cardbookRepository: ok');
 //debug(cb:'  cardbookRepository: '+JSON.stringify(Object.keys(cardbookRepository)));
 						} catch(e) {
 //							console.debug('SMR: cardbook not installed: '+e);
-							debug('cardbook not installed: '+e);
+							debug('cardbook not installed');
 						}
 debug('cb: unregisterChrome');
 						chromeHandle.destruct();
@@ -209,7 +217,7 @@ debug('cb: open');
 					for (let j in cardbookRepository.cardbookCards) {
 						let card = cardbookRepository.cardbookCards[j];
 						if (card.isAList) {
-							if (list) {
+							if (list) { //unwrap list to addresses
 								if (card.uid == list) {
 debug('cb_list found: '+card.fn);
 									let emails=[];
@@ -226,9 +234,12 @@ debug('cb_list found: '+card.fn);
 									}
 									return emails;
 								}
-							} else {
-debug('cb_list: '+card.fn+' '+JSON.stringify(card));
-								lists.push({name: card.fn, id: card.uid});
+							} else {  // return list
+//debug('cb_list: '+card.fn+' '+JSON.stringify(card));
+                let bcolor=cardbookRepository.cardbookNodeColors[card.categories[0]]
+                     ??cardbookRepository.cardbookPreferences.getColor(card.dirPrefId);
+                let fcolor=cardbookRepository.getTextColorFromBackgroundColor(bcolor);
+								lists.push({name: card.fn, id: card.uid, bcolor: bcolor, fcolor: fcolor});
 							}
 						}
 					}
@@ -289,12 +300,16 @@ debug('cb: searchArray: '+c+' entries');
 // j="GUNTER|GERSDORF"	if isset cardbookRepository.autocompleteRestrictSearch
 									if (j.indexOf(searchString) >= 0 || searchString == "") {
 										for (let card of searchArray[dirPrefId][j]) {
+//debug('cb: card: '+JSON.stringify(card));
 //card properties: lastname,firstname,othername,prefixname,suffixname,fn,nickname,org
+                      let bcolor=cardbookRepository.cardbookNodeColors[card.categories[0]]
+                          ??cardbookRepository.cardbookPreferences.getColor(card.dirPrefId);
+                      let fcolor=cardbookRepository.getTextColorFromBackgroundColor(bcolor);
 											//reduce matches 
 											//let smr_search=cardBookSearch(card);
 											if (cardbookRepository.autocompleteRestrictSearch || cardBookSearch(card).indexOf(search) >= 0) {
 												for (let l = 0; l < card.email.length; l++) {
-														addresses.push('"'+card.fn+'" <'+card.email[l][0][0]+'>');
+														addresses.push(['"'+card.fn+'" <'+card.email[l][0][0]+'>', bcolor, fcolor]);
 												}
 											}
 										}
@@ -346,6 +361,7 @@ debug('close');
     let console = Services.console;
     let app = Services.appinfo;
     console.logStringMessage('SimpleMailRedirection: '+addOn.version+' on '+app.name+' '+app.version);
+		appVersion=app.version.replace(/^(\d+\.\d+)(\..*)?$/, '$1');
   }
 
 };
@@ -422,7 +438,7 @@ debug('started: popup window has vanished');
   },
   onStopSending(aMsgID, aStatus, aMsg, returnFileSpec) {
     //aMsgID is empty
-//debug('nsMsgSendListener.onStopSending '+aMsgID+', '+aStatus +', '+aMsg+', '+returnFileSpec+' '+this.msgUri );
+debug('nsMsgSendListener.onStopSending '+aMsgID+', '+aStatus +', '+aMsg+', '+returnFileSpec+' '+this.msgUri );
 //nsMsgSendListener.onStopSending null, 2153066799, null, null imap-message://ggbs@mailhost.iwf.ing.tu-bs.de/INBOX/Gitti#3085debug('onStopSending status='+aStatus);
     if (aStatus) {
       this.tmpFile.remove(false);
@@ -433,8 +449,11 @@ debug('started: popup window has vanished');
       let msgService = messenger.messageServiceFromURI(this.msgUri);
       let msgHdr = msgService.messageURIToMsgHdr(this.msgUri);
 
-      let msg = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-      msg.appendElement(msgHdr, false);
+			let msg=appVersion<'85'
+				? Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray)
+				: new Array();
+      if (appVersion<'85') msg.appendElement(msgHdr, false);
+			else msg.push(msgHdr);
       try {
         msgHdr.folder.addKeywordsToMessages(msg, "redirected");
       } catch(e) {
@@ -462,6 +481,18 @@ debug('delete windowId '+this.windowId);
       delete windows[this.windowId];
     }
 
+  },
+  onGetDraftFolderURI(uri) {	//needed since TB88
+debug('onGetDraftFolderURI: uri='+uri.spec);
+  },
+  onStatus(aMsgID, aMsg) {	//no
+debug('nsMsgSendListener.onStatus: msgId='+aMsgID+' msg='+aMsg);
+  },
+  onSendNotPerformed(aMsgID, aStatus) {	//no
+debug('nsMsgSendListener.onSendNotPerformed: msgId='+aMsgID+' status='+aStatus);
+  },
+  onTransportSecurityError(msgID, status, secInfo, location) {	//no
+debug('nsMsgSendListener.onTransportSecurityError');
   }
 }
 
@@ -580,7 +611,8 @@ debug('account='+accountId+' identity='+identity.fullName+' <'+identity.email+'>
 // QueueForLater waits for the user to select 'send messages from outbox now'
 // Both does not work. Mail has the resent-headers, but they are not respected by TB
 
-      try {
+debug('compFields: '+JSON.stringify(msgCompFields));
+//      try {
         msgSend.sendMessageFile(
           identity,                        // in nsIMsgIdentity       aUserIdentity,
           accountId,                       // char* accountKey,
@@ -594,10 +626,10 @@ debug('account='+accountId+' identity='+identity.fullName+' <'+identity.email+'>
           null,                            // in nsIMsgStatusFeedback aStatusFeedback,
           ""                               // in string               password
           );
-      } catch(e) {
-        console.log('SMR: exception when sending message:' + e);
-      }
-    },	//enod of onStopRequest
+//      } catch(e) {
+//        console.log('SMR: exception when sending message:' + e);
+//      }
+    },	//end of onStopRequest
 
     onDataAvailable: function(aRequest, aInputStream, aOffset, aCount) {
 //debug('onDataAvailable');
@@ -623,7 +655,7 @@ debug("Lineending LF (Linux/MacOS)");
 debug("Lineending CR/LF (Windows)");
 				}
 				// write out Resent-* headers
-				let resenthdrs = getResentHeaders(msgCompFields, identity);
+				let resenthdrs = getResentHeaders(msgCompFields);
 debug('resent with account='+accountId+' identity='+identity.fullName+' <'+identity.email+'> => sender='+msgCompFields.from);
 				aFileOutputStream.write(resenthdrs, resenthdrs.length);
 			}
@@ -789,7 +821,7 @@ debug('aFileOutputStream.init() failed:' + e);
   newURI = null;
 }
 
-function getResentHeaders(msgCompFields, identity)
+function getResentHeaders(msgCompFields)
 {
   //the msgCompFields fields are already quoted printable
   //encodeMimeHeader splits them into multiple lines
@@ -813,11 +845,8 @@ function getResentHeaders(msgCompFields, identity)
   }
 
   resenthdrs += "Resent-Date: " + getResentDate() + "\r\n";
-  let msgID = Cc["@mozilla.org/messengercompose/computils;1"].
-              createInstance(Ci.nsIMsgCompUtils).
-              msgGenerateMessageId(identity);
-  if (msgID) {
-    resenthdrs += "Resent-Message-ID: " + msgID + "\r\n";
+  if (msgCompFields.messageId) {
+    resenthdrs += "Resent-Message-ID: " + msgCompFields.messageId + "\r\n";
   }
 
 //debug('resent-headers\n'+resenthdrs);

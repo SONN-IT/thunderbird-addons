@@ -3,7 +3,7 @@
   "name": "Simple Mail Redirection",
   "short_name": "SMR",
   "description": "__MSG_extensionDescription__",
-  "version": "1.12",
+  "version": "1.14-SP-rc.1",
   "author": "Günter Gersdorf",
   "applications": {
     "gecko": {
@@ -15,12 +15,20 @@
   // also see https://firefox-source-docs.mozilla.org/toolkit/components/extensions/webextensions/basics.html
   "experiment_apis": {
     "smr": {
-      "schema": "schema.json",
+      "schema": "schema_smr.json",
       "parent": {
         "scopes": [ "addon_parent" ],
         "paths": [ [ "smr" ] ],
         "script": "smr_implementation.js",
         "events": ["startup"]
+      }
+    },
+    "LegacyPrefs": {
+      "schema": "schema_legacyPrefs.json",
+      "parent": {
+        "scopes": [ "addon_parent" ],
+        "paths": [ ["LegacyPrefs"] ],
+        "script": "legacyPrefs_implementation.js"
       }
     }
   },
@@ -52,6 +60,11 @@
 			"description": "Redirect selected mails"
 		}
 	},
+  "options_ui": {
+    "page": "settings/settings.html",
+    "open_in_tab": false,
+    "browser_style": false
+  },
   "browser_action": {
     "browser_style": true,
     "default_icon": {

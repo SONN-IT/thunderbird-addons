@@ -88,7 +88,7 @@ input[type="text"] {
 }
 select {
   min-height: unset;
-  padding: unset;
+  padding: 0 4px 0 0 !important;
   margin: unset;
 }
 .address input {

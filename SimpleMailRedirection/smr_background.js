@@ -10,8 +10,8 @@ var redirect = {
 debug('got Addresses');
 //debug('info: '+JSON.stringify(info));
 //debug('info2: '+JSON.stringify(info2));
-		if (typeof info == 'string') {	//keyboard shortcut clicked
-debug('command clicked tabId='+curTabId);
+		if (typeof info == 'string') {	//keyboard shortcut pressed
+debug('keyboard shortcut pressed tabId='+curTabId);
 			//in mailTab:
 			//	if nothing selected
 			//		mh throws error
@@ -28,10 +28,10 @@ debug('command clicked tabId='+curTabId);
 			//	NO TABID
 let tabs=await messenger.tabs.query({
   active: true,
-//  currentWindow: true,
+  currentWindow: true,
 //  lastFocusedWindow: true,
-	windowId: curWinId
-});
+//	windowId: curWinId
+});	//does not return the current window but the 3-pane window
 debug('queried for windowId='+curWinId+' '+JSON.stringify(tabs));
 curTabId = (await messenger.tabs.query({
   active: true,
@@ -87,11 +87,12 @@ debug('got message id='+mh.id+' '+mh.subject+' ('+mh.author+')');
 			//setting top and left in .create() does not work!
 			let size=pos.size;
 			if (!size) size=12;
-			let height=210+4*(size+10)+this.msgs.length*(size+8);
+			//let height=210+4*(size+10)+this.msgs.length*(size+8);
+			let height=185+4*(size+10)+this.msgs.length*(size+8);
 			//if (height<pos.height) height=pos.height;
       let win=await messenger.windows.create({
         height: height,
-        width: pos.width?pos.width:600,
+        width: pos.width?pos.width:700,
         url: "/smr_addresses.html",
         type: "popup",
       });
