@@ -14,8 +14,7 @@ async function composeInit() {
     console.log("settings: ", prefs);
 
     if (prefs.SonnCss === "") {
-        prefs.SonnCss = "font-family: Calibri, Carlito, Arial, Sans-Serif !important; font-size: 20px !important; " +
-                        "background-color: #fff !important; color: #6495ED !important;`";
+        prefs.SonnCss = "font-family: Calibri, Carlito, Arial, Sans-Serif !important; font-size: 14px !important;";
     }
     console.log("prefs.SonnCss: ", prefs.SonnCss);
 
