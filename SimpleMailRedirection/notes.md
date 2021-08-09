@@ -1,6 +1,5 @@
 TODO:
-* wenn mehrere Mails ausgewählt werden, sollte auch ein Button im Kontext Menü, neben Archivieren sein
-* mit CSS etwas schöner gestalten
+* wenn mehrere Mails ausgewählt werden, sollte auch ein Button im Kontext Menü, neben Archivieren sein (ist derzeit nicht möglich)
 
 TESTING:
 * wenn default resent adresse gesetzt, wird für die nächsten der gleiche Versandtyp z.B. BCC verwendet

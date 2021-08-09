@@ -26,7 +26,10 @@ async function SONN_openFile() {
     if (file_match == null) {return}
 
     let filebase = await messenger.LegacyPrefs.getPref("extensions.phoenixqs.filebase");
-    if (filebase == null) {return}
+    if (filebase == null) {
+        console.log("please setup pref extensions.phoenixqs.filebase");
+        return
+    }
 
     for (let m of file_match) {
         let f = m.toLowerCase().replace(/ /g, '');

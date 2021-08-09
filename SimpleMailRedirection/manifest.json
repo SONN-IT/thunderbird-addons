@@ -3,7 +3,7 @@
   "name": "Simple Mail Redirection",
   "short_name": "SMR",
   "description": "__MSG_extensionDescription__",
-  "version": "1.14-SP-rc.2",
+  "version": "1.14-SP-rc.3",
   "author": "Günter Gersdorf",
   "applications": {
     "gecko": {
@@ -33,7 +33,10 @@
     }
   },
   "icons": {
-    "48": "skin/SimpleMailRedirection.png"
+    "16": "skin/SimpleMailRedirection.png",
+    "32": "skin/SimpleMailRedirection.png",
+    "48": "skin/SimpleMailRedirection.png",
+    "96": "skin/SimpleMailRedirection.png"
   },
   "background": {
     "scripts": ["smr_background.js"]
