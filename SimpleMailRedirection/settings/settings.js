@@ -3,7 +3,7 @@ let prefs = {};
 async function saveSettings() {
     let sentTypes = ["To", "Cc", "Bcc"];
     sentTypes.forEach(item => {
-        prefs.SonnResentDefaultAddr[item] = document.querySelector("div#Resent" + CSS.escape(item) + "Address>input").value;
+        prefs.SonnResentDefaultAddr[item] = document.querySelector("#Resent" + CSS.escape(item) + "Input").value;
     });
     await messenger.storage.local.set(prefs);
 }
@@ -39,7 +39,7 @@ async function load() {
 
     let sentTypes = ["To", "Cc", "Bcc"];
     sentTypes.forEach(item => {
-        let addressInput = document.querySelector("div#Resent" + CSS.escape(item) + "Address>input");
+        let addressInput = document.querySelector("#Resent" + CSS.escape(item) + "Input");
         let prefSetting = prefs.SonnResentDefaultAddr[item];
         addressInput.value = "";
         if (prefSetting) {

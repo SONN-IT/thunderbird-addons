@@ -87,8 +87,7 @@ debug('got message id='+mh.id+' '+mh.subject+' ('+mh.author+')');
 			//setting top and left in .create() does not work!
 			let size=pos.size;
 			if (!size) size=12;
-			//let height=210+4*(size+10)+this.msgs.length*(size+8);
-			let height=185+4*(size+10)+this.msgs.length*(size+8);
+			let height=210+4*(size+10)+this.msgs.length*(size+8);
 			//if (height<pos.height) height=pos.height;
       let win=await messenger.windows.create({
         height: height,

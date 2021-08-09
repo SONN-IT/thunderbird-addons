@@ -7,20 +7,20 @@
     <title>__MSG_extensionName__</title>
 		<link rel="stylesheet" href="chrome://global/skin/in-content/common.css">
 		<link rel="stylesheet" href="smr_addresses.css">
-    		<link rel="stylesheet" href="sonn.css">
+        <link rel="stylesheet" href="sonn.css">
 </head>
   
   <!--<body id="body" style="display:block">-->
 <body id="body" style="display:none">
 <div class="navbar" style="margin: 0;">
-    <button id="test-delete"  class="button">
+    <button id="deleteAddresses"  class="button">
         <img src="chrome://messenger/skin/icons/address.svg"
-             title="test svg" style="float: left; margin-right: 5px;"/>
+             style="float: left; margin-right: 5px;"/>
         Adressen entf.
     </button>
     <div class="dropdown">
         <button id="extrasAblageButton" class="button">@ablage hinzufügen</button>
-        <div id="myDropdown" class="dropdown-content">
+        <div id="dropdownAblage" class="dropdownContent">
             <h1>Bitte die Akten angeben <span id="rangeLimit">(Limit 30)</span>:</h1>
             <div id="rangeFrom">Von:
                 <input id="rangeFromInput" class="extrasAblageInput" type="text"
@@ -50,7 +50,7 @@
     </div>
 </div>
 <div>
-    <div style="float: right;"><input type="checkbox" id="copy" value="copy"/>
+    <div id="copyCheckbox" style="float: right;"><input type="checkbox" id="copy" value="copy"/>
         <label for="copy">__MSG_save__</label></div>
       <p style="font-weight: bold">__MSG_selected__</p>
       <div style="display:flex; margin-top:1ex; overflow: auto; max-height: 30em;">
@@ -62,7 +62,7 @@
 
 <div>
     <p style="font-weight: bold">__MSG_sendto__</p>
-    <div style="margin-top:1ex; _height: 200px; overflow-y: auto;">
+    <div style="margin-top:1ex; overflow-y: auto;">
         <!-- no whitespace between div, select and input AND /div's -->
         <div id="address" class="address"><select>
             <option value="TO">__MSG_to__:</option>

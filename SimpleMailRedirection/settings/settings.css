@@ -7,6 +7,53 @@ body {
     color: red !important;
 }
 
-.address>span {
-    width: 25%;
+.formLabel {
+    width: 10%;
+    float: left;
+    margin-top: 15px;
+}
+
+.formInput {
+    width: 90%;
+    float: left;
+    margin-top: 6px;
+}
+
+.saveInput {
+    width: 90%;
+    float: left;
+    margin-top: 6px;
+}
+
+input[type=text], select, textarea {
+    width: 90%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: vertical;
+}
+
+input[type=button] {
+    background-color: #04AA6D;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    float: right;
+}
+
+input[type=button]:disabled {
+    background-color: #cccccc;
+    color: #666666;
+}
+
+input[type=button]:hover:disabled {
+    background-color: red;
+    color: white;
+    cursor: not-allowed;
+}
+
+input[type=button]:hover {
+    background-color: #45a049;
 }

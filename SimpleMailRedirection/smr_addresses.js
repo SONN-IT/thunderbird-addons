@@ -246,6 +246,9 @@ async function load() {
         copytosent: true,
         SonnResentDefaultAddr: []
     });
+
+    //console.log("prefs: ", prefs);
+
     //dont use storage.local.get() (without arg), see https://thunderbird.topicbox.com/groups/addons/T46e96308f41c0de1
 debug('load: wid='+wid+' prefs='+JSON.stringify(prefs));
 
@@ -261,7 +264,7 @@ debug('we already have a listener');
     email.addEventListener('drop', drop);
     email.addEventListener('input', search);
     //document.getElementById("ab").addEventListener('click', openAB);
-    document.getElementById("test-delete").addEventListener('click', removeResentAddr);
+    document.getElementById("deleteAddresses").addEventListener('click', removeResentAddr);
     document.getElementById("extrasAblageButton").addEventListener('click', toggleExtrasAblage);
     document.getElementById("body").addEventListener('keydown', bodykey);
     document.getElementById("accountsel").addEventListener('change', accountchange);
@@ -369,8 +372,18 @@ debug('use from prefs '+defAcctId+' '+defIdenId);
 else debug('account from prefs not valid');
 	}
 	if (!defAcctId) {	//not in prefs or invalid in prefs
-		let acct=accounts.filter(acct=>acct.id==origAcctId)[0];
-		let iden=acct.identities[0];
+        let defaultPref=await messenger.LegacyPrefs.getPref("extensions.smr.defaultResentFrom");
+        let acct, iden;
+        if (defaultPref) {
+            //console.log("legacyPref: ", defaultPref);
+            acct=accounts.find(acct=>acct.name==defaultPref);
+            iden=acct.identities.find(iden=>iden.email==defaultPref);
+        } else {
+            acct=accounts.filter(acct=>acct.id==origAcctId)[0];
+            iden=acct.identities[0];
+        }
+        //console.log("iden: ", iden);
+
 		if (iden)	{// is the default identity or at least the first identity
 debug('Default Identity: '+iden.id+' in '+iden.accountId);
 			defAcctId=acct.id;
@@ -639,7 +652,8 @@ function newInput(elem) {
     addr.parentNode.appendChild(na);
     ni.focus();
   }
-  document.getElementsByTagName('body')[0].scrollIntoView(false);
+  //document.getElementsByTagName('body')[0].scrollIntoView(false);
+  document.getElementsByTagName('html')[0].scrollIntoView(false);
 }
 
 let hidden='';
@@ -694,7 +708,7 @@ console.log('SMR: debug now '+(prefs.debug?'on':'off'));
 }
 
 async function removeWin() {
-	let win = await messenger.windows.getCurrent();
+	let win=await messenger.windows.getCurrent();
 	let wInfo=await messenger.windows.get(win.id);
 	prefs.top=wInfo.top;
 	prefs.left=wInfo.left;
@@ -730,14 +744,14 @@ async function addResentFiles(subjects) {
     let sentTypes = ["To", "Cc", "Bcc"];
     sentTypes.forEach(sentType => {
         let prefSentItems = prefs.SonnResentDefaultAddr[sentType];
-        console.log("prefSentItems: ", prefSentItems);
+        //console.log("prefSentItems: ", prefSentItems);
         if (!prefSentItems) {
             return;
         }
 
         let mailAddresses = prefSentItems.split(/,\s?/);
         mailAddresses.forEach(mailAddr => {
-            console.log("test: ", mailAddr);
+            //console.log("mailAddr: ", mailAddr);
             addResentAddr(mailAddr, sentType);
         })
     });
@@ -755,7 +769,7 @@ async function addResentFiles(subjects) {
     }
 
     let addHeight  = document.querySelectorAll("div.address:not(#address)").length;
-    console.log("addHeight: ", addHeight);
+    //console.log("addHeight: ", addHeight);
     await changeWindowHeight(addHeight);
 }
 
@@ -764,7 +778,7 @@ function addResentAddr(mailAddr, sentType = 0) {
 
     // set sentType To,Cc,Bcc
     if (sentType !== 0) {
-        console.log("sentType: ", sentType);
+        //console.log("sentType: ", sentType);
         mailAddrInput.previousSibling.value = sentType.toUpperCase();
     }
     mailAddrInput.value = mailAddr;
@@ -780,13 +794,10 @@ function addResentAddr(mailAddr, sentType = 0) {
 }
 
 async function removeResentAddr() {
-    let defaultPref = await messenger.LegacyPrefs.getPref("extensions.smr.defaultResentFrom");
-    console.log("legacyPref: ", defaultPref);
-
     let addr = document.querySelectorAll("div.address:not(#address)");
 
     if (addr.length > 0) {
-        console.log("addr: ", addr);
+        //console.log("addr: ", addr);
         addr.forEach((elem) => elem.remove());
     }
 
@@ -806,21 +817,21 @@ async function removeResentAddr() {
 
 async function changeWindowHeight(count = 0) {
     let winRedirect = await messenger.windows.getCurrent();
-    console.log("changeWindowHeight Count: ", count);
+    //console.log("changeWindowHeight Count: ", count);
     let height = winRedirect.height+(count*30);
 
     // fixed minimal height
     height = height > 300 ? height : 300;
 
-    console.log("winRedirect height", winRedirect.height);
+    //console.log("winRedirect height", winRedirect.height);
     await messenger.windows.update(winRedirect.id, {
         height: height
     })
-    console.log("neue Höhe: ", height);
+    //console.log("neue Höhe: ", height);
 }
 
 function toggleExtrasAblage() {
-    let div = document.querySelector("#myDropdown");
+    let div = document.querySelector("#dropdownAblage");
     //console.log("classList: ", div.classList);
     div.classList.toggle("showDropdown");
     if (div.classList.contains("showDropdown")) {
@@ -855,6 +866,7 @@ async function extrasAblage(ev) {
         rangeTo = sonnAblageExtras.rangeToInput.slice(1);
 
         let rangeCount = rangeTo - rangeFrom;
+        document.getElementById('extrasAblageSubmit').disabled = rangeCount < 0 || rangeCount > 29;
         if (rangeCount > 29) {
             document.querySelector("#rangeLimit").classList.add("invalid");
             return;
@@ -871,21 +883,21 @@ async function extrasAblage(ev) {
         }
 
         let addHeight  = document.querySelectorAll("div.address:not(#address)").length;
-        console.log("addHeight: ", addHeight);
+        //console.log("addHeight: ", addHeight);
         await changeWindowHeight(addHeight);
     }
     toggleExtrasAblage();
 }
 
 async function extrasAblageValidate(ev) {
-    console.log(await messenger.accounts.list());
     // input id's validate input rangeFromInput, rangeToInput, hashtagInput
     let elem = ev.target
-    console.log("validate input", ev.target.id);
+    //console.log("validate input", ev.target.id);
 
     let re = /^\b(([MRU]\s?\d{4,5}\/[A-Z]{1,2}(?!\/)|J\s?\d{4,5}\/\d{1,3}|[MGURKE]\s?\d{4,5}|S\s?\d{3})(?!-))\b$/i;
     if (elem.id === "hashtagInput") {
-        re = /^[a-zA-Z]+$/i;
+        // TODO extend regex?
+        re = /^[a-zA-Z1-9]+$/i;
     }
 
     if (elem.value === "") {
@@ -927,7 +939,6 @@ async function extrasAblageValidate(ev) {
 function addHashtag(hashtag = "") {
     let addr = document.querySelectorAll("div.address>#email");
     addr.forEach(elem => {
-
         // check if input is empty or has already a hashtag #
         if (elem.value === "" || elem.value.includes("#")) {
             return;

@@ -4,27 +4,38 @@
     <meta charset="utf-8"/>
     <title></title>
     <link rel="stylesheet" href="settings.css">
-    </style>
 </head>
 <body>
 <script type="application/javascript" src="settings.js"></script>
-<p><b>Standard Umleit Adressen hinzufügen</b></p>
-<div id="ResentToAddress" class="address">
-    <span>AN: </span>
-    <input type="text" class="empty"
-                placeholder="user@sonn.at, user2@sonn.at" autocomplete="off" />
+<div id="form">
+    <p><b>Standard Umleit Adressen hinzufügen</b></p>
+    <div id="ResentToAddress" class="address">
+        <div class="formLabel"><label for="ResentToInput">AN:</label></div>
+        <div class="formInput">
+            <input type="text" class="empty" id="ResentToInput"
+                   placeholder="user@sonn.at, user2@sonn.at" autocomplete="off" />
+        </div>
+    </div>
+
+    <div id="ResentCcAddress" class="address">
+        <div class="formLabel"><label for="ResentCcInput">CC:</label></div>
+        <div class="formInput">
+            <input type="text" class="empty" id="ResentCcInput"
+                   placeholder="user@sonn.at, user2@sonn.at" autocomplete="off" />
+        </div>
+    </div>
+    <div id="ResentBccAddress" class="address">
+        <div class="formLabel"><label for="ResentBccInput">BCC:</label></div>
+        <div class="formInput">
+            <input type="text" class="empty" id="ResentBccInput"
+                   placeholder="user@sonn.at, user2@sonn.at" autocomplete="off" />
+        </div>
+    </div>
+    <hr>
+    <div class="saveInput">
+        <input type="button" id="addressOK" value="Speichern" disabled>
+    </div>
 </div>
-<div id="ResentCcAddress" class="address">
-    <span>CC: </span>
-    <input type="text" class="empty"
-           placeholder="user@sonn.at, user2@sonn.at" autocomplete="off" />
-</div>
-<div id="ResentBccAddress" class="address">
-    <span>BCC: </span>
-    <input type="text" class="empty"
-           placeholder="user@sonn.at, user2@sonn.at" autocomplete="off" />
-</div>
-<hr>
-<input type="button" id="addressOK" value="Speichern">
+
 </body>
 </html>
