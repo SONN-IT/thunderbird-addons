@@ -1,7 +1,7 @@
 {
   "name": "CSS Template",
   "description": "SONN Email Formatvorlage",
-  "version": "1.0-rc.3",
+  "version": "1.0-rc.5",
   "applications": {
     "gecko": {
       "id": "css-template@sonn.at",
@@ -17,10 +17,15 @@
       "background.js"
     ]
   },
-  "options_ui": {
-    "page": "settings/settings.html",
-    "open_in_tab": false,
-    "browser_style": false
+  "experiment_apis": {
+    "LegacyPrefs": {
+      "schema": "api/legacyPrefs.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "paths": [["LegacyPrefs"]],
+        "script": "api/legacyPrefs.js"
+      }
+    }
   },
   "manifest_version": 2
 }
