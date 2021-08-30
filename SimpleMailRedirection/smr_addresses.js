@@ -892,9 +892,8 @@ async function extrasAblage(ev) {
 async function extrasAblageValidate(ev) {
     // input id's validate input rangeFromInput, rangeToInput, hashtagInput
     let elem = ev.target
-    //console.log("validate input", ev.target.id);
 
-    let re = /^\b(([MRU]\s?\d{4,5}\/[A-Z]{1,2}(?!\/)|J\s?\d{4,5}\/\d{1,3}|[MGURKE]\s?\d{4,5}|S\s?\d{3})(?!-))\b$/i;
+    let re = /^\b(([MRU]\s?\d{4,5}\/[A-Z]{1,2}(?!\/)|J\s?\d{4,5}|[MGURKE]\s?\d{4,5}|S\s?\d{3})(?!-))\b$/i;
     if (elem.id === "hashtagInput") {
         // TODO extend regex?
         re = /^[a-zA-Z1-9\-]+$/i;
