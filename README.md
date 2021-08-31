@@ -1,6 +1,6 @@
 # Thunderbird Addons
-
-Addon-Forum: https://thunderbird.topicbox.com/groups/addons/
+## Forum
+https://thunderbird.topicbox.com/groups/addons/
 
 ## Addons derzeit in Verwendung in Thunderbird 60.9:
    * Quicktext: Textvorlagen https://addons.thunderbird.net/de/thunderbird/addon/quicktext/?src=search
