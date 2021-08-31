@@ -2,6 +2,7 @@
 let prefs={};
 var curTabId;
 var curWinId;
+var screen;
 
 var redirect = {
   win: null,
@@ -95,7 +96,10 @@ debug('got message id='+mh.id+' '+mh.subject+' ('+mh.author+')');
         url: "/smr_addresses.html",
         type: "popup",
       });
-			if (pos.top) {
+
+debug('screen='+screen.width+'x'+screen.height);
+debug('pos='+pos.width+'x'+height+' at '+pos.left+'x'+pos.top);
+			if (pos.top>0 && pos.top+height<screen.height && pos.left>0 && pos.left+pos.width<screen.width ) {
 debug('positioned window to '+pos.left+'x'+pos.top);
 				await messenger.windows.update(win.id, {
 					top: pos.top,
@@ -175,7 +179,7 @@ debug('tab created tab='+curTabId+' window='+curWinId+' status='+tab.status+' ac
 
 	messenger.browserAction.onClicked.addListener(redirect.getAddress.bind(redirect));
 
-  messenger.smr.init(prefs);   //loads stylesheet etc.
+  screen=await messenger.smr.init(prefs);   //loads stylesheet etc.
 }
 //messenger.menus.onShown.addListener(()=>{debug('menu shown');});
 

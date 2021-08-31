@@ -50,6 +50,9 @@ debug('onShutdown isAppShutdown='+isAppShutdown);
 debug('init debug='+prefs.debug);
 					let timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
 					timer.initWithCallback(()=>{stylesheets(context);}, 1000, Ci.nsITimer.TYPE_ONE_SHOT);
+let m3p = Services.wm.getMostRecentWindow("mail:3pane");
+debug('screen='+m3p.screen.width+'x'+m3p.screen.height);
+					return m3p.screen;
 				},
         redirect: async function(mhs, rts, params, windowId, options) {
           prefs=options;
@@ -149,7 +152,7 @@ debug('copy msg to '+identity.fccFolder);
             } else {
               msgCompFields.fcc = "nocopy://";
             }
-            msgCompFields.fcc2 = "nocopy://";
+            msgCompFields.fcc2 = "";	//was "nocopy://", but TB91 needs ""
 						let messageId = Cc["@mozilla.org/messengercompose/computils;1"].
               createInstance(Ci.nsIMsgCompUtils).
               msgGenerateMessageId(identity);
@@ -236,10 +239,8 @@ debug('cb_list found: '+card.fn);
 								}
 							} else {  // return list
 //debug('cb_list: '+card.fn+' '+JSON.stringify(card));
-                let bcolor=cardbookRepository.cardbookNodeColors[card.categories[0]]
-                     ??cardbookRepository.cardbookPreferences.getColor(card.dirPrefId);
-                let fcolor=cardbookRepository.getTextColorFromBackgroundColor(bcolor);
-								lists.push({name: card.fn, id: card.uid, bcolor: bcolor, fcolor: fcolor});
+								let colors=cb_cardColors(card);
+								lists.push({name: card.fn, id: card.uid, bcolor: colors.bcolor, fcolor: colors.fcolor});
 							}
 						}
 					}
@@ -302,14 +303,12 @@ debug('cb: searchArray: '+c+' entries');
 										for (let card of searchArray[dirPrefId][j]) {
 //debug('cb: card: '+JSON.stringify(card));
 //card properties: lastname,firstname,othername,prefixname,suffixname,fn,nickname,org
-                      let bcolor=cardbookRepository.cardbookNodeColors[card.categories[0]]
-                          ??cardbookRepository.cardbookPreferences.getColor(card.dirPrefId);
-                      let fcolor=cardbookRepository.getTextColorFromBackgroundColor(bcolor);
-											//reduce matches 
-											//let smr_search=cardBookSearch(card);
+											//reduce matches (dont deliver matches in birthday, , addresses, telefonenumbers etc.)
 											if (cardbookRepository.autocompleteRestrictSearch || cardBookSearch(card).indexOf(search) >= 0) {
+												let colors=cb_cardColors(card);
 												for (let l = 0; l < card.email.length; l++) {
-														addresses.push(['"'+card.fn+'" <'+card.email[l][0][0]+'>', bcolor, fcolor]);
+													addresses.push({email: '"'+card.fn+'" <'+card.email[l][0][0]+'>',
+                            bcolor: colors.bcolor, fcolor: colors.fcolor});
 												}
 											}
 										}
@@ -365,6 +364,23 @@ debug('close');
   }
 
 };
+
+function cb_cardColors(card) {
+	let bcolor=cardbookRepository.cardbookPreferences.getColor(card.dirPrefId);
+	let fcolor;
+	for (let category of card.categories) {
+		let color=cardbookRepository.cardbookNodeColors[category];
+		if (!color) {
+			continue;
+		} else{
+			bcolor=color;
+			break;
+		}
+	}
+	if (bcolor)
+		fcolor = cardbookRepository.getTextColorFromBackgroundColor(bcolor);
+	return {fcolor: fcolor, bcolor: bcolor};
+}
 
 function registerChromeUrl(context, chromeData) {
 debug('registerChromeUrl');
@@ -542,7 +558,10 @@ debug('workaround changeFrom for '+accountId+'|'+identity.key+' is '+changeFrom)
 debug('aCopyListener.onStopRequest failed '+aRequest+', '+aContext+', '+aStatusCode);
         return;
       }
-let test=msgCompFields.to.toLowerCase().includes('testggbs@ggbs.de');
+let test=msgCompFields.to.toLowerCase().includes('testggbs@ggbs.de')||
+          msgCompFields.to.toLowerCase().includes('ggbstest@ggbs.de')||
+          msgCompFields.to.toLowerCase().includes('test@ggbs.de')||
+          msgCompFields.to.toLowerCase().includes('ggbs@ggbs.de');
       if (windows[windowId][msgId].state=='abort') {
 debug('abort: remove tmpfile');
         tmpFile.remove(false);

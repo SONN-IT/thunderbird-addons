@@ -3,7 +3,7 @@
   "name": "Simple Mail Redirection",
   "short_name": "SMR",
   "description": "__MSG_extensionDescription__",
-  "version": "1.14-SP-rc.4",
+  "version": "1.17-SP-rc.5",
   "author": "Günter Gersdorf",
   "applications": {
     "gecko": {
@@ -15,7 +15,7 @@
   // also see https://firefox-source-docs.mozilla.org/toolkit/components/extensions/webextensions/basics.html
   "experiment_apis": {
     "smr": {
-      "schema": "schema_smr.json",
+      "schema": "schema.json",
       "parent": {
         "scopes": [ "addon_parent" ],
         "paths": [ [ "smr" ] ],
@@ -33,10 +33,7 @@
     }
   },
   "icons": {
-    "16": "skin/SimpleMailRedirection.png",
-    "32": "skin/SimpleMailRedirection.png",
-    "48": "skin/SimpleMailRedirection.png",
-    "96": "skin/SimpleMailRedirection.png"
+    "48": "skin/SimpleMailRedirection.svg"
   },
   "background": {
     "scripts": ["smr_background.js"]
@@ -47,12 +44,13 @@
     "messagesRead",
     "menus",
 		"accountsRead",
-		"activeTab"
+		"activeTab",
+		"management"
   ],
 	"default_locale": "en-US",
 	"message_display_action": {
 		"browser_style": true,
-		"default_icon": "skin/SimpleMailRedirection.png",
+		"default_icon": "skin/SimpleMailRedirection.svg",
 		"default_title": "Redirect"
 	},
 	"commands": {

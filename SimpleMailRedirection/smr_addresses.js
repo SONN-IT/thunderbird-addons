@@ -6,6 +6,7 @@ var msgCount;
 var allValid=false;
 var sending=false;
 var cardbook;	//0: no cardbook, 1: only cardbook, 2: cardbook and TB
+var cardbook_messaging; //true if cardbook implements messaging api
 var mLists=new Map;
 var origAcctId;
 
@@ -111,9 +112,18 @@ debug('tb contacts: '+JSON.stringify(contacts));
 					}
 				});
 			} else {
-				let emails=await messenger.smr.cb_list(list.id);
+        if (cardbook_messaging) {
+          let emails=await messenger.runtime.sendMessage(
+                'cardbook@vigneau.philippe', {query: 'lists', id: list.id});
+          emails.forEach(contact=>{
+            email=contact.fn?'"'+contact.fn+'" <'+contact.email+'>':contact.email;
+            addresses.push({to: to.value, email: email});
+          });
+        } else {
+          let emails=await messenger.smr.cb_list(list.id);
 debug('cb contacts: '+JSON.stringify(emails));
-				emails.forEach(email=>{ addresses.push({to: to.value, email: email}); });
+          emails.forEach(email=>{ addresses.push({to: to.value, email: email}); });
+        }
 			}
 		} else {
 			if (email.value) addresses.push({to: to.value, email: email.value});
@@ -197,9 +207,14 @@ debug('abort message '+msgId);
 
 async function openAB() {
 debug('openAB: cb_exists returns '+await messenger.smr.cb_exists());
-	if (await messenger.smr.cb_exists())
-		messenger.smr.cb_open();
-	else
+  if (cardbook) {
+    if (cardbook_messaging) {
+			messenger.runtime.sendMessage(
+          'cardbook@vigneau.philippe', {query: 'openBook'});
+    } else {
+      messenger.smr.cb_open();
+    }
+	} else
 		messenger.addressBooks.openUI();
 }
 
@@ -456,17 +471,62 @@ debug('using '+defAcctId+' '+defIdenId);
     //document.getElementById("email").focus();
     document.getElementsByClassName("empty")[0].focus();
 
-    cardbook=await messenger.smr.cb_exists();	//0: no cardbook, 1: only cardbook, 2: cardbook and TB
-    debug('cardBook 0=no, 1=yes, 2=both: '+cardbook);
-
-	if (cardbook) {	// get cardbooks mailLists
-		let cb_lists=await messenger.smr.cb_list('');
-debug('cb_lists: '+JSON.stringify(cb_lists));
-		cb_lists.forEach(list=>{
-			mLists.set(list.id, {name: list.name, lName: list.name.toLocaleLowerCase(),
-                            isCB: true, id: list.id, bcolor: list.bcolor, fcolor: list.fcolor});
-		});
+// communication with cardbook, cardbook needs to use NotifyTools
+	let have_cardbook=0;
+  cardbook_messaging=false;
+  cardbook=0;
+	try {
+		let cbei=await messenger.management.get('cardbook@vigneau.philippe');
+debug('cardbook version '+cbei.version);	//70.9
+		let [v, major, minor]=cbei.version.match(/^(\d+)\.(\d+)/);
+		if (major<70 || major==70 && minor<=9)
+			have_cardbook=1;	//no api or buggy api
+		else
+			have_cardbook=2;	//api ok
+	} catch(e) {
+debug('cardbook not installed');
 	}
+
+  if (have_cardbook>=2) try {
+    let cb_apiVersion=await messenger.runtime.sendMessage(
+          'cardbook@vigneau.philippe', {query: 'version'});
+      //returns {version: API_VERSION, exclusive: exclusive}
+debug('cardbook api version '+JSON.stringify(cb_apiVersion));
+    cardbook=cb_apiVersion.exclusive?1:2;
+    cardbook_messaging=true;
+    let cb_lists=await messenger.runtime.sendMessage(
+          'cardbook@vigneau.philippe', {query: 'lists'});
+debug('cardbook api lists: '+JSON.stringify(cb_lists));
+    for (let list of cb_lists) {
+			let emails=await messenger.runtime.sendMessage('cardbook@vigneau.philippe',
+																		{query: 'lists', id: list.id});
+debug('cardbook api list: '+list.name+' '+JSON.stringify(emails));
+      mLists.set(list.id, {name: list.name, lName: list.name.toLocaleLowerCase(),
+              isCB: true, id: list.id,
+              bcolor: list.bcolor, fcolor: list.fcolor});
+    };
+debug('cardBook api 0=not available, 1=yes, 2=also use TB addressbook: '+cardbook);
+  } catch(e) {
+debug('cardbook api throws '+e);
+		have_cardbook=1;	//fall back to old usage of cardbook
+		cardbook_messaging=false;
+  } else debug("Don't use buggy cardbook api");
+
+  if (have_cardbook && !cardbook_messaging) { //no messaging
+    cardbook=await messenger.smr.cb_exists();	//0: no cardbook, 1: only cardbook, 2: cardbook and TB
+debug('internal cardBook: 0=not found, 1=available, 2=also use TB addressbook: '+cardbook);
+
+    if (cardbook) {	// get cardbooks mailLists
+      let cb_lists=await messenger.smr.cb_list('');
+debug('cb_lists: '+JSON.stringify(cb_lists));
+      cb_lists.forEach(list=>{
+        mLists.set(list.id, {name: list.name, lName: list.name.toLocaleLowerCase(),
+                              isCB: true, id: list.id, bcolor: list.bcolor, fcolor: list.fcolor});
+      });
+    }
+  }
+//if (!cardbook) console.log('SMR: cardbook not installed');
+
 	if (!cardbook || cardbook>1) {	// get TB's mailLists
 		let abs=await messenger.addressBooks.list();
 		for (const ab of abs)	{//ab.id, ab.name
@@ -522,12 +582,24 @@ async function search(ev) {
 	let re=new RegExp(sv, 'i');
 	for (const list of mLists.values()) {
 		if (list.lName.match(re)) {
-			lists.push([list.name, list.id, list.bcolor, list.fcolor]);
+			lists.push({list: list.name, id: list.id, bcolor: list.bcolor, fcolor: list.fcolor});
 		}
 	};
 
 	if (cardbook)	{	//0: no cardbook, 1: only cardbook, 2: cardbook and TB
-		addresses=await messenger.smr.cb_search(sv/*+' @'*/);
+    if (cardbook_messaging) {
+      let contacts=await messenger.runtime.sendMessage(
+            'cardbook@vigneau.philippe', {query: 'contacts', search: sv/*+' @'*/});
+//debug('cardbook contacts: '+JSON.stringify(contacts));
+      for (let contact of contacts) {
+        for (let l = 0; l < contact.email.length; l++) {
+          addresses.push({email: '"'+contact.fn+'" <'+contact.email[l][0][0]+'>',
+            bcolor: contact.bcolor, fcolor: contact.fcolor});
+        }
+      }
+    } else {
+      addresses=await messenger.smr.cb_search(sv/*+' @'*/);
+    }
 	}
 	if (!cardbook || cardbook>1) {
 		let nodes=await messenger.contacts.quickSearch(null, '"'+sv+'" @');
@@ -538,13 +610,13 @@ debug('search: '+sv);
 		nodes.forEach(node=>{
 //debug('contact: '+JSON.stringify(node));
 			if (node.properties.PrimaryEmail)
-				addresses.push([node.properties.DisplayName?
+				addresses.push({email: node.properties.DisplayName?
 					'"'+node.properties.DisplayName+'" <'+node.properties.PrimaryEmail+'>':
-					node.properties.PrimaryEmail, '', '']);
+					node.properties.PrimaryEmail} );
 			if (node.properties.SecondEmail)
-				addresses.push([node.properties.DisplayName?
+				addresses.push({email: node.properties.DisplayName?
 					'"'+node.properties.DisplayName+'" <'+node.properties.SecondEmail+'>':
-					node.properties.SecondEmail, '', '']);
+					node.properties.SecondEmail});
 		});
 	}
   addresses = [...new Set(addresses)];  //remove duplicates
@@ -566,21 +638,17 @@ debug('search: '+sv);
     sel.size=addresses.length<=5?addresses.length:5;
     addresses.forEach(address =>{
       let opt=document.createElement('option');
-			if (address.length==3) {            //email
-				opt.text=address[0];
-				opt.value='|'+address[0];
-        if (address[1]) {
-          opt.style.backgroundColor=address[1];
-          opt.style.color=address[2];
-        }
+			if (address.email) {            //email
+				opt.text=address.email;
+				opt.value='|'+address.email;
 			} else {                            //list
-				opt.text=address[0];
-				opt.value=address[1]+'|'+address[0];
-        if (address[2]) {
-          opt.style.backgroundColor=address[2];
-          opt.style.color=address[3];
-        }
+				opt.text=address.list;
+				opt.value=address.id+'|'+address.list;
 			}
+      if (address.bcolor) {
+        opt.style.backgroundColor=address.bcolor;
+        opt.style.color=address.fcolor;
+      }
       sel.appendChild(opt);
     });
     ev.target.parentNode.parentNode.insertBefore(sel, ev.target.parentNode.nextSibling); //appends if no nextSibling
