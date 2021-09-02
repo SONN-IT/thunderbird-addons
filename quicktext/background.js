@@ -20,7 +20,18 @@
   const prefNames = Object.keys(defaultPrefs);
 
   for (let prefName of prefNames) {
-    let legacyValue = await messenger.LegacyPrefs.getUserPref(`${legacyPrefBranch}${prefName}`);    
+    let legacyValue = await messenger.LegacyPrefs.getUserPref(`${legacyPrefBranch}${prefName}`);
+
+    let tbCfg;
+    if(prefName === "defaultImport") {
+      console.log("defaultImport found in thunderbirc.cfg")
+      tbCfg = await messenger.LegacyPrefs.getPref(`${legacyPrefBranch}${prefName}`);
+    }
+
+    if(tbCfg) {
+      legacyValue = tbCfg;
+    }
+
     if (legacyValue !== null) {
       console.log(`Migrating legacy preference <${legacyPrefBranch}${prefName}> = <${legacyValue}>.`);
       
