@@ -40,6 +40,10 @@ async function SONN_openFile() {
             dirnum.toString().padStart(5, '0') + "-" +
             (dirnum + dirtypes[filetype] - 1).toString().padStart(5, '0') +
             "/" + filetype + filenum.toString().padStart(5, '0');
+        let platformInfo = await browser.runtime.getPlatformInfo();
+        if(platformInfo.os === "win") {
+            fileurl = fileurl.replace(/\//g, '\\');
+        }
         await browser.OpenFolder.showItemInFolder(fileurl);
     }
 }
