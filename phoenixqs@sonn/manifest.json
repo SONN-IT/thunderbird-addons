@@ -1,10 +1,10 @@
 {
     "name": "SIN Phoenix Quicksearch",
     "description": "Schnellsuche auf Grundlage des aktuellen E-Mails",
-    "version": "2.0-rc.3",
+    "version": "2.0-rc.4",
     "applications": {
       "gecko": {
-        "id": "phoenixqs@sonn",
+        "id": "phoenixqs@sonn.at",
         "strict_min_version": "78.0"
       }
     },
