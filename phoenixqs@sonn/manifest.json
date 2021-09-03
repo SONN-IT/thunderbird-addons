@@ -1,7 +1,7 @@
 {
     "name": "SIN Phoenix Quicksearch",
     "description": "Schnellsuche auf Grundlage des aktuellen E-Mails",
-    "version": "2.0-rc.4",
+    "version": "2.0-rc.5",
     "applications": {
       "gecko": {
         "id": "phoenixqs@sonn.at",
@@ -28,7 +28,7 @@
         "suggested_key": {
           "default": "Ctrl+Alt+S"
         },
-        "description": "Send a 'phoenixqs_SendToSIN' event"
+        "description": "In SIN öffnen"
       }
     },
     "manifest_version": 2,
