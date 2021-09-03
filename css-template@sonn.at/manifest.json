@@ -1,7 +1,7 @@
 {
   "name": "CSS Template",
   "description": "SONN Email Formatvorlage",
-  "version": "1.0-rc.5",
+  "version": "1.0-rc.6",
   "applications": {
     "gecko": {
       "id": "css-template@sonn.at",

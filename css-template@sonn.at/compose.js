@@ -26,7 +26,7 @@ async function insertCSS() {
         css: [],
     });
     let SonnCss = prefs.css;
-    if (SonnCss == null) {
+    if (SonnCss == null || SonnCss.length === 0) {
         console.log("ERROR: SonnCss not set");
         return
     }
