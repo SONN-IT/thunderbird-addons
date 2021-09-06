@@ -390,9 +390,10 @@ else debug('account from prefs not valid');
         let defaultPref=await messenger.LegacyPrefs.getPref("extensions.smr.defaultResentFrom");
         let acct, iden;
         if (defaultPref) {
-            //console.log("legacyPref: ", defaultPref);
-            acct=accounts.find(acct=>acct.name==defaultPref);
-            iden=acct.identities.find(iden=>iden.email==defaultPref);
+            for(acct of accounts) {
+                iden=acct.identities.find(iden=>iden.email==defaultPref);
+                if(iden !== "") {break}
+            }
         } else {
             acct=accounts.filter(acct=>acct.id==origAcctId)[0];
             iden=acct.identities[0];
