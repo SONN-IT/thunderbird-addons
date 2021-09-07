@@ -393,7 +393,7 @@ debug('using '+defAcct+' '+defIden);
         if (defaultPref) {
             for(acct of accounts) {
                 iden=acct.identities.find(iden=>iden.email==defaultPref);
-                if(iden !== "") {break}
+                if(iden !== undefined && iden !== null) {break}
             }
         } else {
             acct=accounts.filter(acct=>acct.id==origAcctId)[0];

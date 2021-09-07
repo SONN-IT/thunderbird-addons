@@ -96,7 +96,7 @@ debug('got message id='+mh.id+' '+mh.subject+' ('+mh.author+')');
 			//if (height<pos.height) height=pos.height;
       let win=await messenger.windows.create({
         height: height,
-        width: pos.width?pos.width:700,
+        width: 800,
         url: "/smr_addresses.html",
         type: "popup",
       });
