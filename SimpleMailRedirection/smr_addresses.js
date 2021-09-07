@@ -368,24 +368,25 @@ debug('using '+defAcct+' '+defIden);
 */
 	let defAcctId, defIdenId;
 	let pref=prefs.identities[origAcctId];
-	if (pref) {
-		let [ acctId, idenId ]=pref.split('|');
-debug('from prefs '+acctId+' '+idenId);
-//todo: check if acct and iden exists
-		let acct=accounts.filter(acct=>acct.id==acctId)[0];
-		let iden;
-		if (acct) { //ok, account is valid
-			iden=acct.identities.filter(iden=>iden.id==idenId)[0];
-			if (!iden) {	//identity no longer valid (probably deleted), use default (or first) identity
-debug('identity from prefs not valid, use default or first identity');
-				iden=acct.identities[0];
-			}
-			defAcctId=acct.id;
-			defIdenId=iden.id;
-debug('use from prefs '+defAcctId+' '+defIdenId);
-		}
-else debug('account from prefs not valid');
-	}
+//    disabled, we don't want that :)
+// 	if (pref) {
+// 		let [ acctId, idenId ]=pref.split('|');
+// debug('from prefs '+acctId+' '+idenId);
+// //todo: check if acct and iden exists
+// 		let acct=accounts.filter(acct=>acct.id==acctId)[0];
+// 		let iden;
+// 		if (acct) { //ok, account is valid
+// 			iden=acct.identities.filter(iden=>iden.id==idenId)[0];
+// 			if (!iden) {	//identity no longer valid (probably deleted), use default (or first) identity
+// debug('identity from prefs not valid, use default or first identity');
+// 				iden=acct.identities[0];
+// 			}
+// 			defAcctId=acct.id;
+// 			defIdenId=iden.id;
+// debug('use from prefs '+defAcctId+' '+defIdenId);
+// 		}
+// else debug('account from prefs not valid');
+// 	}
 	if (!defAcctId) {	//not in prefs or invalid in prefs
         let defaultPref=await messenger.LegacyPrefs.getPref("extensions.smr.defaultResentFrom");
         let acct, iden;
@@ -887,7 +888,7 @@ async function removeResentAddr() {
 async function changeWindowHeight(count = 0) {
     let winRedirect = await messenger.windows.getCurrent();
     //console.log("changeWindowHeight Count: ", count);
-    let height = winRedirect.height+(count*30);
+    let height = winRedirect.height+(count*40);
 
     // fixed minimal height
     height = height > 300 ? height : 300;

@@ -89,6 +89,10 @@ debug('got message id='+mh.id+' '+mh.subject+' ('+mh.author+')');
 			let size=pos.size;
 			if (!size) size=12;
 			let height=210+4*(size+10)+this.msgs.length*(size+8);
+			let platformInfo = await browser.runtime.getPlatformInfo();
+			if(platformInfo.os === "win") {
+				height = height+24;
+			}
 			//if (height<pos.height) height=pos.height;
       let win=await messenger.windows.create({
         height: height,
