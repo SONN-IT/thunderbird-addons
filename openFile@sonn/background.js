@@ -22,7 +22,7 @@ async function SONN_openFile() {
 
     // Try to use file number for lookup
     let subject = message.subject;
-    let file_match = subject.match(/\b([RSGMUEJK] ?\d{4,5}|S ?\d{3})\b/gi);
+    let file_match = subject.match(/\b([RM] ?\d{4,5}(\/[A-Z]{2})?|K ?\d{4,5}|J ?\d{4,5}(\/\d{1,2})?|[EGU] ?\d{4}|S ?\d{3})\b/gi);
     if (file_match == null) {return}
 
     let filebase = await messenger.LegacyPrefs.getPref("extensions.phoenixqs.filebase");
@@ -44,6 +44,7 @@ async function SONN_openFile() {
         if(platformInfo.os === "win") {
             fileurl = fileurl.replace(/\//g, '\\');
         }
+        console.log("fileurl: ", fileurl);
         await browser.OpenFolder.showItemInFolder(fileurl);
     }
 }
