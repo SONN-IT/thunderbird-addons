@@ -13,12 +13,91 @@ browser.messageDisplayAction.onClicked.addListener(async () => {
     await SONN_openFile();
 });
 
+function getCaseRange (type, num) {
+    let caseRange = [];
+    switch (type) {
+        case "r":
+            caseRange = [
+                {from :     1, to :  9999, step: false},
+                {from : 10000, to : 29999, step : false},
+                {from : 30000, to : 32999, step : false},
+                {from : 33000, to : Number.POSITIVE_INFINITY, step : 500}
+            ];
+            break;
+        case "s":
+            caseRange = [
+                {from: 1, to: Number.POSITIVE_INFINITY, step: 100}
+            ];
+            break;
+        case "g":
+            caseRange = [
+                {from :    1, to : 999, step : 500},
+                {from : 1000, to : Number.POSITIVE_INFINITY, step : 100}
+            ];
+            break;
+        case "m":
+            caseRange = [
+                {from :     1, to :  6999, step : false},
+                {from :  7000, to :  9999, step : false},
+                {from : 10000, to : 12999, step : false},
+                {from : 13000, to : 14999, step : false},
+                {from : 15000, to : 16999, step : false},
+                {from : 17000, to : 18999, step : false},
+                {from : 19000, to : 19999, step : false},
+                {from : 20000, to : 20999, step : false},
+                {from : 21000, to : 21999, step : false},
+                {from : 22000, to : 22999, step : false},
+                {from : 23000, to : Number.POSITIVE_INFINITY, step : 500}
+            ];
+            break;
+        case "u":
+            caseRange = [
+                {from :    1, to :  999, step : false},
+                {from : 1000, to : 1399, step : false},
+                {from : 1400, to : Number.POSITIVE_INFINITY, step : 100}
+            ];
+            break;
+        case "e":
+            caseRange = [
+                {from :    1, to : 1499, step : false},
+                {from : 1500, to : 1799, step : false},
+                {from : 1800, to : Number.POSITIVE_INFINITY, step : 100}
+            ];
+            break;
+        case "j":
+            caseRange = [
+                {from :    1, to : 1499, step : false},
+                {from : 1500, to : Number.POSITIVE_INFINITY, step : 100}
+            ];
+            break;
+        case "k":
+            caseRange = [
+                {from :    1, to : 2499, step : false},
+                {from : 2500, to : Number.POSITIVE_INFINITY, step : 100}
+            ];
+            break;
+    }
+
+    let bounds;
+    for (let range in caseRange) {
+        if (num >= caseRange[range].from && num <= caseRange[range].to) {
+            if (caseRange[range].step) {
+                let min = Math.floor(num / caseRange[range].step) * caseRange[range].step;
+                bounds = [min || 1, min + caseRange[range].step - 1];
+            } else {
+                bounds = [caseRange[range].from, caseRange[range].to];
+            }
+            console.log("bounds:" + bounds + " steps: " + caseRange[range].step);
+            break;
+        }
+    }
+    return bounds
+}
+
 async function SONN_openFile() {
     let tabs = await browser.tabs.query({active: true, currentWindow: true,})
     let tabId = tabs[0].id;
     let message = await browser.messageDisplay.getDisplayedMessage(tabId);
-    //browser.OpenFolder.showItemInFolder("/opt/");
-    let dirtypes = {e: 100, g: 100, j: 100, k: 100, m: 500, r: 500, s: 100, u: 100};
 
     // Try to use file number for lookup
     let subject = message.subject;
@@ -35,10 +114,10 @@ async function SONN_openFile() {
         let f = m.toLowerCase().replace(/ /g, '');
         let filetype = f.slice(0, 1);
         let filenum = parseInt(f.slice(1), 10);
-        let dirnum = filenum - filenum % dirtypes[filetype];
+        let dirRange = getCaseRange(filetype, filenum);
         let fileurl = filebase + filetype + "/" +
-            dirnum.toString().padStart(5, '0') + "-" +
-            (dirnum + dirtypes[filetype] - 1).toString().padStart(5, '0') +
+            dirRange[0].toString().padStart(5, '0') + "-" +
+            dirRange[1].toString().padStart(5, '0') +
             "/" + filetype + filenum.toString().padStart(5, '0');
         let platformInfo = await browser.runtime.getPlatformInfo();
         if(platformInfo.os === "win") {
