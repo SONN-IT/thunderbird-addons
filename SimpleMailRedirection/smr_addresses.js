@@ -604,7 +604,8 @@ async function search(ev) {
     }
 	}
 	if (!cardbook || cardbook>1) {
-		let nodes=await messenger.contacts.quickSearch(null, '"'+sv+'" @');
+		//let nodes=await messenger.contacts.quickSearch(null, '"'+sv+'" @');
+		let nodes=await messenger.contacts.quickSearch(null, '"'+sv+'"');
 /*
 debug('search: '+sv);
 		let nodes=await messenger.contacts.quickSearch(null, sv);
@@ -625,7 +626,7 @@ debug('search: '+sv);
 	addresses=lists.concat(addresses);
 
 //debug('found '+addresses.length);
-  if (addresses.length && addresses.length<=20) {
+  if (addresses.length && addresses.length<=50) {
     if (sel) {
       while (sel.firstChild) sel.removeChild(sel.lastChild);
       sel.style.display='block';
