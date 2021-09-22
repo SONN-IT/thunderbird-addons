@@ -29,11 +29,17 @@ async function addAblage(tab) {
     for (let m of fileMatch) {
         // remove space between akt type and number e.g. R 60000 --> R60000
         let fileRaw = m.replace(/ /g, '');
-        fileRaw = fileRaw.toLowerCase().substring(0, 1) + fileRaw.toUpperCase().substring(1).padStart(5, '0');
+        if (fileRaw.match(/\b([RGMUEJK]\d{4})\b/i)) {
+            fileRaw = fileRaw.toLowerCase().substring(0, 1) + "0" + fileRaw.toUpperCase().substring(1);
+        } else if (fileRaw.match(/\b(S\d{3})\b/i)) {
+            fileRaw = fileRaw.toLowerCase().substring(0, 1) + "00" + fileRaw.toUpperCase().substring(1);
+        } else {
+            fileRaw = fileRaw.toLowerCase().substring(0, 1) + fileRaw.toUpperCase().substring(1);
+        }
         ablageMail.push(fileRaw.replace(/\//g, '-') + "@ablage");
     }
 
     // composeRecipientList could be also a string, but default is array
     let composeRecipientList = message[recipientType].concat(ablageMail);
-    browser.compose.setComposeDetails(tab.id, {[recipientType]: composeRecipientList});
+    await browser.compose.setComposeDetails(tab.id, {[recipientType]: composeRecipientList});
 }

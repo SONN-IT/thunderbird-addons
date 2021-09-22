@@ -833,7 +833,14 @@ async function addResentFiles(subjects) {
         fileMatch = [...uniqueSet];
         for (let m of fileMatch) {
             let fileRaw = m.replace(/ /g, '');
-            fileRaw = fileRaw.toLowerCase().substring(0, 1) + fileRaw.toUpperCase().substring(1).padStart(5, '0');
+            console.log("fileRaw: ", fileRaw);
+            if (fileRaw.match(/\b([RGMUEJK]\d{4})\b/i)) {
+                fileRaw = fileRaw.toLowerCase().substring(0, 1) + "0" + fileRaw.toUpperCase().substring(1);
+            } else if (fileRaw.match(/\b(S\d{3})\b/i)) {
+                fileRaw = fileRaw.toLowerCase().substring(0, 1) + "00" + fileRaw.toUpperCase().substring(1);
+            } else {
+                fileRaw = fileRaw.toLowerCase().substring(0, 1) + fileRaw.toUpperCase().substring(1);
+            }
             let file = fileRaw.replace(/\//g, '-') + "@ablage";
             addResentAddr(file);
         }
