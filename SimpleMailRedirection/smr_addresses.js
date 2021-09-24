@@ -705,8 +705,7 @@ function drop(ev) {
 function newInput(elem) {
 //debug('generate new input field');
   let addr=elem.parentNode; //flex container
-  //let to=addr.firstChild.value;
-  let to="TO";
+  let to=addr.firstChild.value;
   let na=addr.nextSibling;
 //debug('newInput next is '+ni);
   if (!na) {
