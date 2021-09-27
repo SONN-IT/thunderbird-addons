@@ -40,5 +40,14 @@
     },
     "recipient": {
         "message": "Címzett"
+    },
+    "closeonsuccess": {
+        "message": "Ablak bezárása"
+    },
+    "delay": {
+        "message": "Késleltetés:"
+    },
+    "done": {
+        "message": "Befejezés"
     }
 }

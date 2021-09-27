@@ -97,8 +97,10 @@ debug('got message id='+mh.id+' '+mh.subject+' ('+mh.author+')');
       let win=await messenger.windows.create({
         height: height,
         width: 800,
+		allowScriptsToClose: true,
         url: "/smr_addresses.html",
         type: "popup",
+          //'normal' opens  new mail:3pane window with smr as additional tab
       });
 
 debug('screen='+screen.width+'x'+screen.height);

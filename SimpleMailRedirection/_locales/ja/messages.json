@@ -40,5 +40,14 @@
     },
     "recipient": {
         "message": "受信者"
+    },
+    "closeonsuccess": {
+        "message": "このウィンドウを閉じる"
+    },
+    "delay": {
+        "message": "遅延:"
+    },
+    "done": {
+        "message": "完了"
     }
 }

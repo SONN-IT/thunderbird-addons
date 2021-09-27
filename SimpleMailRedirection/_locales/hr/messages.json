@@ -40,5 +40,14 @@
     },
     "recipient": {
         "message": "Primatelj"
+    },
+    "closeonsuccess": {
+        "message": "Zatvori ovaj prozor."
+    },
+    "delay": {
+        "message": "Kašnjenje:"
+    },
+    "done": {
+        "message": "Gotovo"
     }
 }

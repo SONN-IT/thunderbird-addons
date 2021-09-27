@@ -40,5 +40,14 @@
     },
     "recipient": {
         "message": "Ontvanger"
+    },
+    "closeonsuccess": {
+        "message": "Dit venster sluiten"
+    },
+    "delay": {
+        "message": "Vertraging:"
+    },
+    "done": {
+        "message": "Gereed"
     }
 }

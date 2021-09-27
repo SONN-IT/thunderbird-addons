@@ -40,5 +40,14 @@
     },
     "recipient": {
         "message": "Til"
+    },
+    "closeonsuccess": {
+        "message": "Luk dette vindue."
+    },
+    "delay": {
+        "message": "Forsinkelse:"
+    },
+    "done": {
+        "message": "Opret konto"
     }
 }

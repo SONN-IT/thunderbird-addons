@@ -40,5 +40,14 @@
     },
     "recipient": {
         "message": "Адресат"
+    },
+    "closeonsuccess": {
+        "message": "Закрыть это окно."
+    },
+    "delay": {
+        "message": "Задержка:"
+    },
+    "done": {
+        "message": "Готово"
     }
 }

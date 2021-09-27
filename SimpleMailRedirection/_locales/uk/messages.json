@@ -40,5 +40,14 @@
     },
     "recipient": {
         "message": "Одержувачі"
+    },
+    "closeonsuccess": {
+        "message": "Закрити це вікно."
+    },
+    "delay": {
+        "message": "Затримка:"
+    },
+    "done": {
+        "message": "Готово"
     }
 }

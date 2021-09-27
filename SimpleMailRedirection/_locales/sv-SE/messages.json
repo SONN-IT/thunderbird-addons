@@ -40,5 +40,14 @@
     },
     "recipient": {
         "message": "Mottagare"
+    },
+    "closeonsuccess": {
+        "message": "Stäng det här fönstret."
+    },
+    "delay": {
+        "message": "Fördröjning:"
+    },
+    "done": {
+        "message": "Klar"
     }
 }

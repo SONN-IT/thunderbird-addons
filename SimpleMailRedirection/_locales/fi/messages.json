@@ -40,5 +40,14 @@
     },
     "recipient": {
         "message": "Vastaanottaja"
+    },
+    "closeonsuccess": {
+        "message": "Sulje tämä ikkuna."
+    },
+    "delay": {
+        "message": "Delay:"
+    },
+    "done": {
+        "message": "Valmis"
     }
 }

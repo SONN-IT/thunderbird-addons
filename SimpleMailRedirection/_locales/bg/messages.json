@@ -40,5 +40,14 @@
     },
     "recipient": {
         "message": "Получател"
+    },
+    "closeonsuccess": {
+        "message": "Затваряне на прозореца."
+    },
+    "delay": {
+        "message": "Забавяне:"
+    },
+    "done": {
+        "message": "Готово"
     }
 }

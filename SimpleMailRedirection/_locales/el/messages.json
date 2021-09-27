@@ -40,5 +40,14 @@
     },
     "recipient": {
         "message": "Παραλήπτης"
+    },
+    "closeonsuccess": {
+        "message": "Κλείσιμο του παραθύρου."
+    },
+    "delay": {
+        "message": "Καθυστέρηση:"
+    },
+    "done": {
+        "message": "Τέλος"
     }
 }

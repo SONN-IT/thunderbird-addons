@@ -40,5 +40,14 @@
     },
     "recipient": {
         "message": "Empfänger"
+    },
+    "closeonsuccess": {
+        "message": "Dieses Fenster schließen."
+    },
+    "delay": {
+        "message": "Verzögerung:"
+    },
+    "done": {
+        "message": "Fertig"
     }
 }

@@ -18,11 +18,12 @@ option.bt {
   border-top: 1px solid black;
 }
 
-#copy, #changefrom, #debug {
+#copy, #changefrom, #debug, #closeonsuccess {
   width: 12px;
   height: 12px;
   margin-inline-end: 3px;
 	margin-left: 5px;
+  vertical-align: middle;
 }
 
 /* selected mails table */
@@ -74,6 +75,12 @@ th {
 	background: url("chrome://global/skin/icons/warning.svg") center center / 16px 16px no-repeat;
 	background-color: black;
 }
+.pointer {
+	cursor: pointer;
+}
+.done {
+	text-decoration-line: line-through;
+}
 
 
 /* address input box */
@@ -120,6 +127,7 @@ select {
 /* progress indicator in selected mails table */
 progress {
 	height: 13px;
+  _n_width: 8em;
 }
 ::-moz-progress-bar {
 	animation-duration: 3s;
@@ -149,8 +157,16 @@ div.pb span {
 	color: black;
 	font-size: 80%;
 	padding-top: 2px;
+  	margin-left: -66%;
+}
+div.pb span.textonly {
+  position: unset;
+  margin-left: 0;
 }
 div.pb {
 	display: inline-block;
 	position: relative;
+}
+div.pb.hide {
+  display: none;
 }

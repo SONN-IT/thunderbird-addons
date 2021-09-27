@@ -40,5 +40,14 @@
     },
     "recipient": {
         "message": "المستلِم"
+    },
+    "closeonsuccess": {
+        "message": "أغلِق هذه النافذة."
+    },
+    "delay": {
+        "message": "التأخير:"
+    },
+    "done": {
+        "message": "تم"
     }
 }

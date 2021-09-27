@@ -40,5 +40,14 @@
     },
     "recipient": {
         "message": "Mottaker"
+    },
+    "closeonsuccess": {
+        "message": "Lukk dette vinduet."
+    },
+    "delay": {
+        "message": "Delay:"
+    },
+    "done": {
+        "message": "Ferdig"
     }
 }

@@ -75,5 +75,23 @@
       "file": "messengercompose/messengercompose.dtd",
       "key": "closeCmd.label",
       "_de": "Schließen"
+  },
+  "closeonsuccess": {
+      "default": "Close dialog on success",
+      "file": "newmailaccount/accountProvisioner.dtd",
+      "key": "successful.close",
+      "_de": "Fenster bei Erfolg schließen"
+  },
+  "delay": {
+      "default": "Delay:",
+      "file": "../devtools/client/animationinspector.properties",
+      "key": "player.animationDelayLabel",
+      "_de": "Verzögerung:"
+  },
+  "done": {
+      "default": "Done",
+      "file": "accountCreation.dtd",
+      "key": "doneAccount.label",
+      "_de": "Erledigt"
   }
 }

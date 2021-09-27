@@ -9,7 +9,9 @@ var cardbook;	//0: no cardbook, 1: only cardbook, 2: cardbook and TB
 var cardbook_messaging; //true if cardbook implements messaging api
 var mLists=new Map;
 var origAcctId;
-
+var sendOk=true;
+var allowResend=false;
+var doneText;
 let sonnAblageExtras = {
     rangeFromInput: null,
     rangeToInput: null,
@@ -138,40 +140,56 @@ debug('cb contacts: '+JSON.stringify(emails));
 debug(JSON.stringify(addresses));
 //return;	//debug
 
+  msgCount=msgs.length;
   msgs.forEach(msg=>{
-    msg.sending=true;
 debug('msg: '+msg.subject)
+    let tr=document.getElementById('msg_'+msg.id);
+    let tdpb=tr.firstChild.nextSibling.nextSibling;
+    if (msg.hasOwnProperty('state')) {  // its a resend
+      if (!msg.state) {   // message was already successfull sent
+        //pb.innerHTML='';
+        if (!doneText) doneText=messenger.i18n.getMessage('done');
+        tdpb.firstChild.firstChild.textContent=doneText; //bereits verschickt
+        tdpb.firstChild.firstChild.className='textonly';
+        msg.sending=false;
+        msgCount--;
+      } else if (msg.allowResend) {
+        tr.style.color='black';
+        msg.sending=true;
+      }
+      tdpb.firstChild.classList.remove('hide');
+    } else {  //first send
+      msg.sending=true;
+      let pbd=document.createElement('div');
+      pbd.className='pb';
+      let pbs=document.createElement('span');
+      pbs.id='pb_'+tr.id.substr(4);
+      tr.firstChild.className='abort';
+      pbs.textContent='...';
+      let pb=document.createElement('progress');
+      pbd.appendChild(pb);
+      pbd.appendChild(pbs);
+      tdpb.appendChild(pbd);
+    }
   });
+
   let copy=document.getElementById("copy").checked;
 	prefs.copytosent=copy;
 debug('copy='+copy);
 	prefs.identities[origAcctId]=acct+'|'+iden;
   await messenger.storage.local.set(prefs);
 
+  sendOk=true;
+  allowResend=false;
+
   messenger.smr.redirect(msgs, addresses, 
     {accountId: acct, identityId: iden, copy2sent: copy }, wid, prefs);
   sending=true;
-  msgCount=msgs.length;
 debug('send done');
   document.getElementById("addressOK").disabled=true;  //disable send button
   let inps=document.getElementsByTagName('input');
   for (let inp of inps) if (inp.type=='text') inp.disabled=true;  //disable all input fields
   
-  let trs=document.getElementsByTagName('tr');
-  for (let tr of trs) {
-    ind=tr.firstChild;
-    if (!ind.firstChild) continue;  //skip th row
-    ind.className='abort';
-    let pbd=document.createElement('div');
-    pbd.className='pb';
-    let pbs=document.createElement('span');
-    pbs.id='pb_'+tr.id.substr(4);
-    pbs.textContent='...';
-    let pb=document.createElement('progress');
-    pbd.appendChild(pbs);
-    pbd.appendChild(pb);
-    ind.nextSibling.nextSibling.appendChild(pbd);
-  }
   document.getElementsByTagName('body')[0].scrollIntoView(
     { block: 'start', inline: 'nearest', behavior: 'smooth'} );
 }
@@ -195,10 +213,12 @@ function removeMsg(ev) {
   let msgId=tr.id.substr(4);
   if (!sending) {
 debug('remove message '+msgId);
-    msgs.splice(msgs.findIndex(msg=>msg.id==msgId), 1);
+    let msgInd=msgs.findIndex(msg=>msg.id==msgId);
+    let msg=msgs[msgInd];
+    msgs.splice(msgInd, 1);
     tr.parentNode.removeChild(tr);
-    msgCount=msgs.length;
-    if (!msgs.length) cancel();
+    if (!msg.hasOwnProperty('state') || msg.state) msgCount--;
+    if (!msgCount) cancel();
   } else {
 debug('abort message '+msgId);
     messenger.smr.abort(wid, Number(msgId));
@@ -233,20 +253,58 @@ debug('onMailSent fired: '+JSON.stringify(data));
   } else if (data.type=='finished' || data.type=='aborted') {
     let msg=msgs.find(msg=>msg.id==data.msgid);
     msg.sending=false;
+    msg.state=data.state;
+    msg.allowResend=data.allowResend;
     let tr=document.getElementById('msg_'+data.msgid);
-    tr.firstChild.nextSibling.nextSibling.innerHTML='';
+    tr.firstChild.nextSibling.nextSibling.firstChild.classList.add('hide');
     tr.firstChild.removeEventListener('click', removeMsg);
     if (data.state==0) {
       tr.style.color='green';
       tr.firstChild.className='ok';
+      tr.getElementsByTagName('progress')[0].remove();  //remove progressbar
     } else {
+      sendOk=false;
       tr.style.color='red';
       tr.firstChild.className='failed';
+      if (data.allowResend) {
+        allowResend=true;
+          // with NS_ERROR_SENDING_RCPT_COMMAND (status 550)or
+          // with NS_ERROR_SENDING_MESSAGE, web.de problem
+debug('Allow editing recipient address');
+      }
     }
     msgCount--;
     if (!msgCount) {
       sending=false;
+debug('no more messages, allowResend='+allowResend);
+      if (allowResend) {
+        document.getElementById("addressOK").disabled=false;  //reenable send button
+        let inps=document.getElementsByTagName('input');
+        for (let inp of inps) if (inp.type=='text') inp.disabled=false;  //reenable all input fields
+        msgCount=msgs.length; //reinitialize msgCount
+        msgs.forEach(msg=>{
+          if (!msg.state) msgCount--;
+          let tr=document.getElementById('msg_'+msg.id);
+          let td=tr.firstChild;
+//          td.className='remove';
+          td.addEventListener('click', removeMsg);
+          td.classList.add('pointer');
+//          if (!msg.state) tr.classList.add('done');
+        });
+      }
       document.getElementById("addressCANCEL").value=messenger.i18n.getMessage('close');
+      if (sendOk && prefs.closeonsuccess) {
+          setTimeout(()=>{ removeWin(); }, prefs.delay*1000);
+      } else {
+          messenger.windows.update(wid, {focused: true})
+              .then((w) => {
+                  // do something
+                  // console.log(w);
+              })
+              .catch((e) => {
+                  // error
+              });
+      }
     }
   }
 }
@@ -255,10 +313,12 @@ async function load() {
     wid=(await messenger.windows.getCurrent()).id;
     prefs=await messenger.storage.local.get({
         debug: false,
+        delay: 1,
         size: 0,
         identities: {},
         changefrom: {},
         copytosent: true,
+        closeonsuccess: true,
         SonnResentDefaultAddr: []
     });
 
@@ -266,6 +326,7 @@ async function load() {
 
     //dont use storage.local.get() (without arg), see https://thunderbird.topicbox.com/groups/addons/T46e96308f41c0de1
 debug('load: wid='+wid+' prefs='+JSON.stringify(prefs));
+debug('  allowResend='+allowResend);
 
   if (messenger.smr.onMailSent.hasListener(listener)) {
 debug('we already have a listener');
@@ -274,21 +335,25 @@ debug('we already have a listener');
 
     document.getElementById("addressCANCEL").addEventListener('click', cancel);
     document.getElementById("addressOK").addEventListener('click', send);
-    document.getElementById("email").addEventListener('keydown', okAndInput);
     let email=document.getElementById("email");
+    email.addEventListener('keydown', okAndInput);
     email.addEventListener('drop', drop);
     email.addEventListener('input', search);
+    setTimeout(()=>{ email.focus();	debug('focus now '+document.activeElement.tagName); }, 500);  //does not work in TB88
     //document.getElementById("ab").addEventListener('click', openAB);
     document.getElementById("deleteAddresses").addEventListener('click', removeResentAddr);
     document.getElementById("extrasAblageButton").addEventListener('click', toggleExtrasAblage);
     document.getElementById("body").addEventListener('keydown', bodykey);
     document.getElementById("accountsel").addEventListener('change', accountchange);
     document.getElementById("changefrom").addEventListener('change', togglechangefrom);
+    // document.getElementById("closeonsuccess").addEventListener('change', togglecloseonsuccess);
+    document.getElementById("delay").addEventListener('change', changedelay);
     document.getElementById("debug").addEventListener('change', toggledebug);
 
     let msgSubjects="";
 
     msgs = await messenger.runtime.sendMessage({action: "requestData", prefs: prefs});
+    msgCount=msgs.length;
     let mails=document.getElementById("mails");
     let tbody=mails.firstChild;
     if (tbody.tagName!='tbody') tbody=tbody.nextSibling;
@@ -309,7 +374,7 @@ debug('we already have a listener');
         td.textContent=msg.subject;
         tr.appendChild(td);
         td=document.createElement('td');  //progressbar
-        td.className='pb';
+        //td.className='pb';
         tr.appendChild(td);
         td=document.createElement('td');
         td.textContent=msg.author;
@@ -462,6 +527,8 @@ debug('using '+defAcctId+' '+defIdenId);
   });
 
 	document.getElementById("copy").checked=prefs.copytosent
+	// document.getElementById("closeonsuccess").checked=prefs.closeonsuccess
+	document.getElementById('delay').value=prefs.delay;
 	document.getElementById('debug').checked=prefs.debug;
 
     let body=document.getElementById("body");
@@ -512,7 +579,8 @@ debug('cardBook api 0=not available, 1=yes, 2=also use TB addressbook: '+cardboo
 debug('cardbook api throws '+e);
 		have_cardbook=1;	//fall back to old usage of cardbook
 		cardbook_messaging=false;
-  } else debug("Don't use buggy cardbook api");
+  }
+  else if (have_cardbook==1) debug("Don't use buggy cardbook api");
 
   if (have_cardbook && !cardbook_messaging) { //no messaging
     cardbook=await messenger.smr.cb_exists();	//0: no cardbook, 1: only cardbook, 2: cardbook and TB
@@ -636,6 +704,7 @@ debug('search: '+sv);
       sel.multiple=true;
       sel.autocomplete='off';
       sel.addEventListener('keyup', selectitem);
+      sel.addEventListener('keydown', selectitem);
       sel.addEventListener('click', selectitem);
     }
     sel.size=addresses.length<=5?addresses.length:5;
@@ -674,7 +743,9 @@ debug('search: '+sv);
 }
 
 function selectitem(ev) {
-  if (ev.type == "keyup" && (ev.key == "Enter" || ev.key==" ") || ev.type == 'click') {
+  if (ev.type == "keydown" && ev.key=='Tab'
+          || ev.type == "keyup" && (ev.key == "Enter" || ev.key==" " )
+          || ev.type == 'click') {
 		ev.stopPropagation();
     ev.preventDefault();
     let sel=document.getElementById('results');
@@ -713,6 +784,7 @@ function newInput(elem) {
     na.removeAttribute('id');
 		na.firstChild.value=to;
     let ni=na.firstChild.nextSibling;
+      ni.removeAttribute('id');
       ni.value='';
 			ni.name='';
       ni.className='empty';
@@ -776,6 +848,16 @@ function toggledebug(ev) {
 console.log('SMR: debug now '+(prefs.debug?'on':'off'));
   messenger.storage.local.set(prefs);
 }
+function togglecloseonsuccess(ev) {
+	prefs.closeonsuccess=ev.target.checked;
+console.log('SMR: closeonsuccess now '+(prefs.closeonsuccess?'on':'off'));
+  messenger.storage.local.set(prefs);
+}
+function changedelay(ev) {
+	prefs.delay=ev.target.value;
+console.log('SMR: delay now '+prefs.delay);
+  messenger.storage.local.set(prefs);
+}
 
 async function removeWin() {
 	let win=await messenger.windows.getCurrent();
@@ -786,7 +868,7 @@ async function removeWin() {
 	prefs.width=wInfo.width;
   await messenger.storage.local.set(prefs);
 	debug('positioned window now at '+prefs.left+'x'+prefs.top);
-	debug('sized window now '+prefs.width+'x'+prefs.height);
+	debug('sized window now '+prefs.width);	//+'x'+prefs.height);
 	debug('font size now '+prefs.size);
 
 	await messenger.windows.remove(win.id);	
@@ -797,15 +879,14 @@ document.addEventListener('DOMContentLoaded', load, { once: true });
 
 let debugcache='';
 function debug(txt, force) {
-    if (force || prefs) {
-        if (force || prefs.debug) {
-            if (debugcache) console.log(debugcache);
-            debugcache='';
-            console.log('SMR: '+txt);
-        }
-    } else {
-        debugcache+='SMR: '+txt+'\n';
-    }
+	if (force || prefs) {
+		if (force || prefs.debug) {
+			if (debugcache) console.log(debugcache); debugcache='';
+			console.log('SMR: '+txt);
+		}
+	} else {
+		debugcache+='SMR: '+txt+'\n';
+	}
 }
 
 async function addResentFiles(subjects) {
@@ -1013,7 +1094,7 @@ async function extrasAblageValidate(ev) {
 }
 
 function addHashtag(hashtag = "") {
-    let addr = document.querySelectorAll("div.address>#email");
+    let addr = document.querySelectorAll("div.address>input.address");
     addr.forEach(elem => {
         // check if input is empty or has already a hashtag #
         if (elem.value === "" || elem.value.includes("#")) {

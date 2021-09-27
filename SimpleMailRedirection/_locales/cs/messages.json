@@ -40,5 +40,14 @@
     },
     "recipient": {
         "message": "Příjemce"
+    },
+    "closeonsuccess": {
+        "message": "Zavřít okno."
+    },
+    "delay": {
+        "message": "Zpoždění:"
+    },
+    "done": {
+        "message": "Hotovo"
     }
 }

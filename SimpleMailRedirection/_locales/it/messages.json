@@ -40,5 +40,14 @@
     },
     "recipient": {
         "message": "Destinatario"
+    },
+    "closeonsuccess": {
+        "message": "Chiudere questa finestra."
+    },
+    "delay": {
+        "message": "Ritardo:"
+    },
+    "done": {
+        "message": "Fatto"
     }
 }

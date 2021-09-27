@@ -40,5 +40,14 @@
     },
     "recipient": {
         "message": "Penerima"
+    },
+    "closeonsuccess": {
+        "message": "Tutup jendela ini sekarang."
+    },
+    "delay": {
+        "message": "Jeda:"
+    },
+    "done": {
+        "message": "Selesai"
     }
 }

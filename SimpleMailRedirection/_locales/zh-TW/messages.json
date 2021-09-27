@@ -40,5 +40,14 @@
     },
     "recipient": {
         "message": "收件者"
+    },
+    "closeonsuccess": {
+        "message": "關閉此視窗。"
+    },
+    "delay": {
+        "message": "延滯:"
+    },
+    "done": {
+        "message": "完成"
     }
 }

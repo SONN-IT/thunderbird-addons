@@ -40,5 +40,14 @@
     },
     "recipient": {
         "message": "Alıcı"
+    },
+    "closeonsuccess": {
+        "message": "Bu pencereyi kapat."
+    },
+    "delay": {
+        "message": "Gecikme:"
+    },
+    "done": {
+        "message": "Bitti"
     }
 }

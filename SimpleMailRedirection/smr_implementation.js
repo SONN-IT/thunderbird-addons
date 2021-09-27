@@ -6,6 +6,9 @@ const { AddonManager } = ChromeUtils.import("resource://gre/modules/AddonManager
 const { MailServices }=ChromeUtils.import("resource:///modules/MailServices.jsm");
 const { MailUtils }=ChromeUtils.import("resource:///modules/MailUtils.jsm");
 const { FileUtils }=ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+try {
+  var { MsgUtils }=ChromeUtils.import("resource:///modules/MimeMessageUtils.jsm");
+} catch(e) { var MsgUtils=null; /* TB78 */ }
 
 var chromeHandle=null;	//for cardbook
 var cardbookRepository;
@@ -58,13 +61,26 @@ debug('screen='+m3p.screen.width+'x'+m3p.screen.height);
           prefs=options;
 debug('redirect from window '+windowId);
 debug('prefs='+JSON.stringify(prefs));
-mhs.forEach(mh=>debug('redirect '+mh.subject+' ('+mh.author+')'));
+mhs.forEach(mh=>debug('redirect '+(!mh.sending?'but skipped ':'')+mh.subject+' ('+mh.author+')'));
 rts.forEach(addr=>debug('resentTo '+addr.to+' '+addr.email));
+
+          // cleanup from vanished windows
+          for (let wid in windows) {
+//debug('cache check windowId '+wid);
+            if (!windows[wid].fire) {
+//debug('cache delete windowId '+wid);
+              delete windows[wid];
+            }
+          }
+
           windows[windowId].msgCount=mhs.length;
           mhs.forEach(mh=>{
-            windows[windowId][mh.id]=mh;
-            windows[windowId][mh.id].state='started';
+            if (mh.sending) { // skip already successfull send messages
+              windows[windowId][mh.id]=mh;
+              windows[windowId][mh.id].state='started';
+            }
           });
+          windows[windowId].allowResend=false;
 //TEST:
 //mhs.forEach(mh=>windows[windowId][mh.id]['msgSend']='send_'+mh.id);
           let resentTo='';
@@ -86,6 +102,7 @@ debug('resentBcc='+resentBcc);
           let accountId=params.accountId; //mh.folder.accountId;
           let identity = MailServices.accounts.getIdentity(params.identityId);
           mhs.forEach((mh) => {
+            if (!mh.sending) return; // skip already successfull send messages
             let msgHdr=context.extension.messageManager.get(mh.id);
 debug('got msgHdr id='+msgHdr.messageKey);
 /*obsolete
@@ -455,9 +472,27 @@ debug('started: popup window has vanished');
   onStopSending(aMsgID, aStatus, aMsg, returnFileSpec) {
     //aMsgID is empty
 debug('nsMsgSendListener.onStopSending '+aMsgID+', '+aStatus +', '+aMsg+', '+returnFileSpec+' '+this.msgUri );
-//nsMsgSendListener.onStopSending null, 2153066799, null, null imap-message://ggbs@mailhost.iwf.ing.tu-bs.de/INBOX/Gitti#3085debug('onStopSending status='+aStatus);
+    let allowResend='';
+    //with old MsgSend (TB78) we might have success even if message has been aborted
+debug('  state='+windows[this.windowId][this.msgId].state);
+    if (!MsgUtils && !aStatus && windows[this.windowId][this.msgId].state=='abort') {
+      aStatus=0x805530ef;
+debug('   success but abort: set to failed');
+    }
     if (aStatus) {
-      this.tmpFile.remove(false);
+      //aMsgID is empty on error
+//TB91:
+//aStatus=2153066725 (0x805530e5, NS_ERROR_SENDING_MESSAGE) if web.de problem
+//aStatus=2153066783 (0x8055311F, NS_ERROR_SENDING_RCPT_COMMAND) if status=550, recipient unknown
+//aStatus is one of MsgUtils.NS_ERROR_SMTP_... errors, defined in modules/MimeMessageUtils.jsm in TB91
+if (MsgUtils!=null) debug('MsgSend returned bad status: '+MsgUtils.getErrorStringName(aStatus));
+//      if (aStatus==MsgUtils.NS_ERROR_SENDING_RCPT_COMMAND) allowResend='badRCPT';
+//      else if (aStatus==MsgUtils.NS_ERROR_SENDING_MESSAGE) allowResend='badSend'; //i.e. web.de
+//TB78:
+//aStatus=2153066735 (0x805530ef, NS_ERROR_BUT_DONT_SHOW_ALERT) for every error
+//    defined in comm\mailnews\compose\src\nsComposeStrings.h in TB78
+      allowResend='sendError';
+      try { this.tmpFile.remove(false); } catch(e) { /* already removed */ }
     } else {
       // mark message as 'resent'
       let messenger = Cc["@mozilla.org/messenger;1"].
@@ -479,8 +514,8 @@ debug(e);
     }
     if (windows[this.windowId].fire) {
 debug('finished: notify popup window');
-//state=2153066735 if web.de problem
-      windows[this.windowId].fire.async({msgid: this.msgId, type: 'finished', state: aStatus});
+      windows[this.windowId].fire.async({msgid: this.msgId, type: 'finished', state: aStatus, allowResend: allowResend});
+      if (allowResend) windows[this.windowId].allowResend=true;
     } else {
 debug('finished: popup window has vanished');
     }
@@ -492,7 +527,7 @@ for (const [windowId, data] of Object.entries(windows)) {
     else debug(`cache msgId ${windowId} ${msgId} ${mh.id} ${mh.msgSend} ${mh.subject}`);
   }
 }
-    if (!windows[this.windowId].msgCount) {
+    if (!windows[this.windowId].msgCount && !windows[this.windowId].allowResend) {
 debug('delete windowId '+this.windowId);
       delete windows[this.windowId];
     }
@@ -600,6 +635,7 @@ m3p.setTimeout(()=>{
 }, 3000);
 return;
 }
+//TEST End
 
 /*obsolete
       let useAccountId=accountId;
@@ -651,9 +687,9 @@ debug('compFields: '+JSON.stringify(msgCompFields));
     },	//end of onStopRequest
 
     onDataAvailable: function(aRequest, aInputStream, aOffset, aCount) {
-//debug('onDataAvailable');
+debug('onDataAvailable');
       if (windows[windowId][msgId].state=='abort') {
-//debug('onDataAvailable aborted');
+debug('onDataAvailable aborted');
 //        throw 'aborted';
           //see https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIStreamListener
           //but does not work

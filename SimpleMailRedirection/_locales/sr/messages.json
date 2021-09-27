@@ -40,5 +40,14 @@
     },
     "recipient": {
         "message": "Прималац"
+    },
+    "closeonsuccess": {
+        "message": "Затвори овај прозор."
+    },
+    "delay": {
+        "message": "Delay:"
+    },
+    "done": {
+        "message": "Урађено"
     }
 }

@@ -40,5 +40,14 @@
     },
     "recipient": {
         "message": "Destinatari"
+    },
+    "closeonsuccess": {
+        "message": "Tanca aquesta finestra."
+    },
+    "delay": {
+        "message": "Retard:"
+    },
+    "done": {
+        "message": "Fet"
     }
 }

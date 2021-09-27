@@ -40,5 +40,14 @@
     },
     "recipient": {
         "message": "Gavėjas"
+    },
+    "closeonsuccess": {
+        "message": "Užverti šį langą."
+    },
+    "delay": {
+        "message": "Delsa:"
+    },
+    "done": {
+        "message": "Baigta"
     }
 }

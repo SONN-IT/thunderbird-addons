@@ -40,5 +40,14 @@
     },
     "recipient": {
         "message": "Adresát"
+    },
+    "closeonsuccess": {
+        "message": "Zavrieť toto okno"
+    },
+    "delay": {
+        "message": "Oneskorenie:"
+    },
+    "done": {
+        "message": "Hotovo"
     }
 }
