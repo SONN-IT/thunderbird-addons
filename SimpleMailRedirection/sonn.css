@@ -146,7 +146,7 @@ input[type=button]:hover {
 
 .showDropdown {display: grid;}
 
-.tdMailSubject {
+.tdMailSubject, .tdMailAuthor {
     max-width: 300px;
     white-space: nowrap;
     overflow: hidden;

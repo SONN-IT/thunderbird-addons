@@ -378,6 +378,7 @@ debug('we already have a listener');
         //td.className='pb';
         tr.appendChild(td);
         td=document.createElement('td');
+        td.className="tdMailAuthor";
         td.textContent=msg.author;
         tr.appendChild(td);
         td=document.createElement('td');
