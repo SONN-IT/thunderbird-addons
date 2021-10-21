@@ -371,6 +371,7 @@ debug('we already have a listener');
         td.addEventListener('click', removeMsg);
         tr.appendChild(td);
         td=document.createElement('td');
+        td.className="tdMailSubject";
         td.textContent=msg.subject;
         tr.appendChild(td);
         td=document.createElement('td');  //progressbar

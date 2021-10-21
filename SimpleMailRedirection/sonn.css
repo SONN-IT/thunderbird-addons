@@ -145,3 +145,10 @@ input[type=button]:hover {
 .dropdown a:hover {background-color: #ddd;}
 
 .showDropdown {display: grid;}
+
+.tdMailSubject {
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
