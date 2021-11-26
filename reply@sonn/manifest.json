@@ -1,7 +1,7 @@
 {
     "name": "Reply-SONN",
     "description": "Automatisches Hinzufügen der @ablage Adresse",
-    "version": "2.0-rc.3",
+    "version": "2.1",
     "applications": {
       "gecko": {
         "id": "reply@sonn.at",
@@ -9,23 +9,37 @@
       }
     },
     "permissions": [
-      "compose"
+      "compose",
+      "storage"
     ],
     "background": {
       "scripts": [
         "background.js"
       ]
     },
+    "options_ui": {
+      "page": "settings/settings.html",
+      "open_in_tab": false,
+      "browser_style": false
+    },
     "compose_action": {
       "default_title": "Automatisches Hinzufügen der @ablage Adresse",
       "default_icon": "logo.svg",
       "default_label": "@ablage"
     },
+    "commands": {
+      "reply_hotkey1": {
+        "description": "Standard Hashtag"
+      },
+      "reply_hotkey2": {
+        "description": "Hashtag 2"
+      }
+    },
     "manifest_version": 2,
-  "icons": {
-    "16": "logo.svg",
-    "32": "logo.svg",
-    "48": "logo.svg",
-    "96": "logo.svg"
-  }
+    "icons": {
+      "16": "logo.svg",
+      "32": "logo.svg",
+      "48": "logo.svg",
+      "96": "logo.svg"
+    }
 }

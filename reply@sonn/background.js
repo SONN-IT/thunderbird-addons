@@ -1,8 +1,30 @@
+let lastWindowId = "";
+
 browser.composeAction.onClicked.addListener(async (tab) => {
     await addAblage(tab);
 });
 
-async function addAblage(tab) {
+browser.windows.onFocusChanged.addListener(async (windowId) => {
+    if (windowId === -1) {return}
+    lastWindowId = windowId;
+});
+
+browser.commands.onCommand.addListener(async (command) => {
+    if (!command.startsWith("reply_hotkey")) {return}
+    let tabs = await browser.tabs.query({
+        windowId: lastWindowId,
+        type: "messageCompose"
+    });
+
+    if (tabs.length === 0) {return}
+    if (command === "reply_hotkey1") {
+        await addAblage(tabs[0]);
+    } else if (command === "reply_hotkey2") {
+        await addAblage(tabs[0], "hashTag2");
+    }
+});
+
+async function addAblage(tab, hashtag = "defaultHashTag") {
     let message = await browser.compose.getComposeDetails(tab.id);
     if (!message.subject) {return}
 
@@ -11,6 +33,15 @@ async function addAblage(tab) {
 
     let recipientType = "cc"
     let recipientAddr = [];
+
+    let prefs = await messenger.storage.local.get({
+        hashTags: [],
+    });
+
+    let tag = "";
+    if (prefs.hashTags[hashtag] && prefs.hashTags[hashtag] !== "") {
+        tag = "#" + prefs.hashTags[hashtag];
+    }
 
     let sentTypes = [ "to", "cc", "bcc" ];
     sentTypes.forEach(sentType => {
@@ -36,7 +67,7 @@ async function addAblage(tab) {
         } else {
             fileRaw = fileRaw.toLowerCase().substring(0, 1) + fileRaw.toUpperCase().substring(1);
         }
-        ablageMail.push(fileRaw.replace(/\//g, '-') + "@ablage");
+        ablageMail.push(fileRaw.replace(/\//g, '-') + tag + "@ablage");
     }
 
     // composeRecipientList could be also a string, but default is array
