@@ -1,7 +1,7 @@
 {
     "name": "Reply-SONN",
     "description": "Automatisches Hinzufügen der @ablage Adresse",
-    "version": "2.1",
+    "version": "2.2",
     "applications": {
       "gecko": {
         "id": "reply@sonn.at",

@@ -9,9 +9,8 @@ async function saveSettings() {
 }
 
 function validate(ev) {
-    const re = /^[^#@]{1,100}$/;
+    const re = /^[^#@\\,<>]{1,100}$/;
     let hashtag = ev.target.value;
-    console.log("validate elem", hashtag);
     if (!hashtag) {
         ev.target.className = 'hashtag valid';
     }
