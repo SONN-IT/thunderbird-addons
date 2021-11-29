@@ -87,7 +87,6 @@ function getCaseRange (type, num) {
             } else {
                 bounds = [caseRange[range].from, caseRange[range].to];
             }
-            console.log("bounds:" + bounds + " steps: " + caseRange[range].step);
             break;
         }
     }
@@ -110,6 +109,9 @@ async function SONN_openFile() {
         return
     }
 
+    let enableFileLink = await messenger.LegacyPrefs.getPref("extensions.phoenixqs.enableFileLink");
+    let platformInfo = await browser.runtime.getPlatformInfo();
+
     for (let m of file_match) {
         let f = m.toLowerCase().replace(/ /g, '');
         let filetype = f.slice(0, 1);
@@ -119,11 +121,13 @@ async function SONN_openFile() {
             dirRange[0].toString().padStart(5, '0') + "-" +
             dirRange[1].toString().padStart(5, '0') +
             "/" + filetype + filenum.toString().padStart(5, '0');
-        let platformInfo = await browser.runtime.getPlatformInfo();
         if(platformInfo.os === "win") {
             fileurl = fileurl.replace(/\//g, '\\');
         }
-        console.log("fileurl: ", fileurl);
-        await browser.OpenFolder.showItemInFolder(fileurl);
+        if (enableFileLink && enableFileLink === true) {
+            await browser.OpenFolder.openFileLink(fileurl);
+        } else {
+            await browser.OpenFolder.showItemInFolder(fileurl);
+        }
     }
 }
