@@ -1,0 +1,33 @@
+{
+  "manifest_version": 2,
+  "name": "Betreff-Datum Spalte",
+  "description": "findet Datum im Betreff und zeigt es in einer Spalte an",
+  "version": "1.1",
+  "author": "Markus Eberl",
+  "applications": {
+    "gecko": {
+      "id": "subjectDate@sonn.at",
+      "strict_min_version": "78.0"
+    }
+  },
+  "experiment_apis": {
+    "FAC": {
+      "schema": "schema.json",
+      "parent": {
+        "scopes": [
+          "addon_parent"
+        ],
+        "paths": [
+          ["FAC"]
+        ],
+        "script": "experiments.js",
+        "events": ["startup"]
+      }
+    }
+  },
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  }
+}
