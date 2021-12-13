@@ -5,7 +5,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var MSG_VIEW_FLAG_DUMMY = 0x20000000;
 
-const dateColumnHandler = {
+const subjectDateColumnHandler = {
   init(win) { this.win = win; },
   getCellText(row, col) { return this.isDummy(row) ? "" : this.getDateString(this.win.gDBView.getMsgHdrAt(row)); },
   getSortStringForRow(hdr) {
@@ -18,10 +18,11 @@ const dateColumnHandler = {
   getSortLongForRow(hdr) {
     let dateString = this.getDateString(hdr);
     if (dateString === "") {
-      // console.log("epochtime", 0)
-      return 0;
+      // 1. January 2200 13:37:07
+      return 7258167427;
     } else if (dateString === "keine Frist") {
-      return 1;
+      // 1. January 2200 13:37:00
+      return 7258167420;
     }
 
     let dmy = dateString.split(".");
@@ -86,8 +87,8 @@ const columnOverlay = {
   observe(aMsgFolder, aTopic, aData) {
     try {
       console.log("sujectDate observe");
-      dateColumnHandler.init(this.win);
-      this.win.gDBView.addColumnHandler("subjectDateColumn", dateColumnHandler);
+      subjectDateColumnHandler.init(this.win);
+      this.win.gDBView.addColumnHandler("subjectDateColumn", subjectDateColumnHandler);
     } catch (ex) {
       console.error(ex);
       throw new Error("Cannot add column handler");
@@ -96,8 +97,17 @@ const columnOverlay = {
 
   addColumn(win, columnId, columnLabel) {
     if (win.document.getElementById(columnId)) {
+      console.log("exit addColumn");
       return;
     }
+
+    const threadCols = win.document.getElementById("threadCols");
+    let ordinals = [];
+    let treecols = threadCols.querySelectorAll("treecol");
+    treecols.forEach((elem) => {
+      ordinals.push(elem.ordinal)
+    });
+    let nextOrdinal = (Math.max(...ordinals) + 1 || "").toString();
 
     const treeCol = win.document.createXULElement("treecol");
     treeCol.setAttribute("id", columnId);
@@ -105,26 +115,36 @@ const columnOverlay = {
     treeCol.setAttribute("flex", "2");
     treeCol.setAttribute("closemenu", "none");
     treeCol.setAttribute("label", columnLabel);
+    treeCol.setAttribute("ordinal", nextOrdinal);
+    treeCol.setAttribute("hidden", true);
     treeCol.setAttribute("tooltiptext", "nach Datum im Betreff sortieren");
-
-    const threadCols = win.document.getElementById("threadCols");
     threadCols.appendChild(treeCol);
 
     // Restore persisted attributes.
     let attributes = Services.xulStore.getAttributeEnumerator(
-      this.win.document.URL,
-      columnId
+        this.win.document.URL,
+        columnId
     );
     for (let attribute of attributes) {
       let value = Services.xulStore.getValue(this.win.document.URL, columnId, attribute);
       // See Thunderbird bug 1607575 and bug 1612055.
       if (attribute != "ordinal" || parseInt(AppConstants.MOZ_APP_VERSION, 10) < 74) {
         treeCol.setAttribute(attribute, value);
+      } else if (attribute == "ordinal" && ordinals.indexOf(value) > -1) {
+        treeCol.ordinal = nextOrdinal;
+        treeCol.setAttribute("ordinal", nextOrdinal);
       } else {
         treeCol.ordinal = value;
       }
     }
 
+    let subjectDateColumn = win.document.getElementById("subjectDateColumn");
+    if (!subjectDateColumn.ordinal) {
+      treeCol.ordinal = nextOrdinal;
+    } else if (ordinals.indexOf(subjectDateColumn.ordinal) > -1) {
+      subjectDateColumn.ordinal = nextOrdinal;
+      subjectDateColumn.setAttribute("ordinal", nextOrdinal);
+    }
     Services.obs.addObserver(this, "MsgCreateDBView", false);
   },
 
@@ -148,6 +168,7 @@ const columnOverlay = {
 
 var FACHeaderView = {
   init(win) {
+    console.log("FACHeaderView init");
     this.win = win;
     columnOverlay.init(win);
 
