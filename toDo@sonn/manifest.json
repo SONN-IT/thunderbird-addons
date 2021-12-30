@@ -1,0 +1,39 @@
+{
+    "name": "ToDo",
+    "description": "ToDo",
+    "version": "1.0-rc1",
+    "applications": {
+      "gecko": {
+        "id": "toDo@sonn.at",
+        "strict_min_version": "78.0"
+      }
+    },
+    "permissions": [
+      "messagesRead",
+      "accountsRead",
+      "messagesMove",
+      "activeTab",
+      "tabs",
+      "notifications"
+    ],
+    "background": {
+      "scripts": [
+        "background.js"
+      ]
+    },
+  "message_display_action": {
+    "default_title": "Todo add",
+    "default_label": "TODO"
+  },
+    "experiment_apis": {
+      "ImapTools": {
+        "schema": "api/schema.json",
+        "parent": {
+          "scopes": ["addon_parent"],
+          "script": "api/implementation.js",
+          "paths": [["ImapTools"]]
+        }
+      }
+    },
+    "manifest_version": 2
+}
