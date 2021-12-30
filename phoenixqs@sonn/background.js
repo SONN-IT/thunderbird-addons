@@ -53,15 +53,6 @@ function SendToSIN() {
                     }
                 })
 
-                // let resent_match = resent_values.match(/([a-z]\d+(-[a-z0-9]+)?)(#\w+)?@ablage/gi);
-                // resent_match.forEach((elem, index, array) => {
-                //     array[index] = elem.split(/[#@]/)[0];
-                // })
-                // // remove duplicate values
-                // let uniqueSet = new Set(resent_match);
-                // resent_match = [...uniqueSet];
-                // console.log("resent_match2:", resent_match);
-
                 // use Set to prevent duplicates
                 let resentSet = new Set();
                 for (const result of resent_raw_values.matchAll(/(?<akt>[a-z]\d+(-[a-z0-9]+)?)(#\w+)?@ablage/gi)) {
