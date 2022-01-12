@@ -1,7 +1,7 @@
 {
     "name": "ToDo",
     "description": "ToDo",
-    "version": "1.0-rc2",
+    "version": "1.0-rc3",
     "applications": {
       "gecko": {
         "id": "toDo@sonn.at",
@@ -27,11 +27,19 @@
   },
     "experiment_apis": {
       "ImapTools": {
-        "schema": "api/schema.json",
+        "schema": "api/imapTools.json",
         "parent": {
           "scopes": ["addon_parent"],
-          "script": "api/implementation.js",
+          "script": "api/imapTools.js",
           "paths": [["ImapTools"]]
+        }
+      },
+      "LegacyPrefs": {
+        "schema": "api/legacyPrefs.json",
+        "parent": {
+          "scopes": ["addon_parent"],
+          "paths": [["LegacyPrefs"]],
+          "script": "api/legacyPrefs.js"
         }
       }
     },

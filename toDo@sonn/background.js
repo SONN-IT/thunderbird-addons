@@ -27,7 +27,12 @@ async function main() {
                 let imapUid = await browser.ImapTools.getImapUID(copiedMessage.id)
                 console.log("copiedMessage imapUid", imapUid);
                 console.log("copiedMessage: ", copiedMessage);
-                browser.windows.openDefaultBrowser("http://localhost/" + encodeURIComponent(imapUid));
+                let baseUrl = await messenger.LegacyPrefs.getPref("extensions.todo.baseurl");
+                if (baseUrl == null) {
+                    console.log("please setup pref extensions.todo.baseurl e.g. https://localhost");
+                    return
+                }
+                browser.windows.openDefaultBrowser(baseUrl + "/" + encodeURIComponent(imapUid));
             }
             browser.messages.onCopied.removeListener(copiedMessageListener);
         });
