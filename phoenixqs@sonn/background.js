@@ -56,23 +56,22 @@ function SendToSIN() {
                 })
 
                 let resent_match = resent_raw_values.matchAll(/(?<akt>[a-z]\d+(-[a-z0-9]+)?)(#\w+)?@ablage/gi);
-                // remove duplicates
-                // replace "-" to "/" necessary, because SIN doesn't accept "-" e.g. J2046-3 or M23104-CH
-                if (resent_match) {
-                    let resentSet = new Set();
-                    for (const result of resent_match) {
-                        if (result.groups.akt) {
-                            resentSet.add(result.groups.akt.replace(/-/g, '\/'));
-                        }
+                // use Set to remove duplicates
+                let resentSet = new Set();
+                for (const result of resent_match) {
+                    if (result.groups.akt) {
+                        // replace "-" to "/" necessary, because SIN doesn't accept "-" e.g. J2046-3 or M23104-CH
+                        resentSet.add(result.groups.akt.replace(/-/g, '\/'));
                     }
-                    resent_match = [...resentSet];
-                    if (resent_match.length > 1) {
-                        let resent_values = resent_match.shift();
-                        resent_match.forEach(elem => resent_values = resent_values + " OR " + elem)
-                        browser.windows.openDefaultBrowser(qsurl + "%3Amulti%3A" + encodeURIComponent(resent_values));
-                    } else if (resent_match.length === 1) {
-                        browser.windows.openDefaultBrowser(qsurl + encodeURIComponent(resent_match[0]));
-                    }
+                }
+
+                resent_match = [...resentSet];
+                if (resent_match.length > 1) {
+                    let resent_values = resent_match.shift();
+                    resent_match.forEach(elem => resent_values = resent_values + " OR " + elem)
+                    browser.windows.openDefaultBrowser(qsurl + "%3Amulti%3A" + encodeURIComponent(resent_values));
+                } else if (resent_match.length === 1) {
+                    browser.windows.openDefaultBrowser(qsurl + encodeURIComponent(resent_match[0]));
                 } else {
                     let addr_match = message.author.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi);
 
