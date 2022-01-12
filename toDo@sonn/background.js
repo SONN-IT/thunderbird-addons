@@ -11,10 +11,12 @@ async function main() {
     if (!message) {return 0}
 
     if (message.folder.path === "/Drafts") {
-        // TODO: SIN would delete a draft?
-        console.log("mail in drafts folder")
-        let imapUid = await browser.ImapTools.getImapUID(message.id);
-        browser.windows.openDefaultBrowser("http://localhost/" + encodeURIComponent(imapUid));
+        console.log("drafts mail: exit")
+        browser.notifications.create({
+            "type": "basic",
+            "title": "Thunderbird - ToDo",
+            "message": "Entwürfe können nicht für ToDo's verwendet werden"
+        });
     } else {
         browser.messages.onCopied.addListener(async function copiedMessageListener(originalMessages, copiedMessages) {
             console.log("copiedMessageListener");
