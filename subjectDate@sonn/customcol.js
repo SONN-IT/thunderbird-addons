@@ -35,7 +35,7 @@ const subjectDateColumnHandler = {
       // extension import-export-tools-ng uses mime2DecodedSubject
       dateString = aHeader.mime2DecodedSubject;
       // let match = dateString.match(/(3[01]|[12][0-9]|0?[1-9])\.(1[012]|0?[1-9])\.((?:19|20)\d{2})/);
-      let match = dateString.match(/(3[01]|[12][0-9]|0?[1-9])\.(1[012]|0?[1-9])\.((?:19|20)\d{2})|(3[01]|[12][0-9]|0?[1-9]).?\s?([a-zA-Z]+).?((?:19|20)\d{2})|(keine Frist)/);
+      let match = dateString.match(/(3[01]|[12][0-9]|0?[1-9])\.(1[012]|0?[1-9])\.((?:19|20)\d{2})|(3[01]|[12][0-9]|0?[1-9]).?\s?([a-zA-Zä]+).?((?:19|20)\d{2})|(keine Frist)/);
       if (match == null) {
         return dateString = "";
       }
