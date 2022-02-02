@@ -45,18 +45,18 @@ const subjectDateColumnHandler = {
       // name month
       } else if (match[4] && match[5] && match[6]) {
         let months = {
-          'Jänner' : '01', 'Januar' : '01',
-          'Februar' : '02',
-          'März' : '03',
+          'Jänner' : '01', 'Januar' : '01', 'January' : '01',
+          'Februar' : '02', 'February' : '02',
+          'März' : '03', 'March' : '03',
           'April' : '04',
-          'Mai' : '05',
-          'Juni' : '06',
-          'Juli' : '07',
+          'Mai' : '05', 'May' : '05',
+          'Juni' : '06', 'June' : '06',
+          'Juli' : '07', 'July' : '07',
           'August' : '08',
           'September' : '09',
-          'Oktober' : '10',
+          'Oktober' : '10', 'October' : '10',
           'November' : '11',
-          'Dezember' : '12'
+          'Dezember' : '12', 'December' : '12'
         }
 
         let month = match[5];
