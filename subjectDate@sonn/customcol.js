@@ -7,7 +7,7 @@ var MSG_VIEW_FLAG_DUMMY = 0x20000000;
 
 const subjectDateColumnHandler = {
   init(win) { this.win = win; },
-  getCellText(row, col) { return this.isDummy(row) ? "" : this.getDateString(this.win.gDBView.getMsgHdrAt(row)); },
+  getCellText(row, col) { return this.isDummy(row) ? "" : this.getDateString(this.win.gDBView.getMsgHdrAt(row, "text")); },
   getSortStringForRow(hdr) {
     return 0;
   },
@@ -15,62 +15,75 @@ const subjectDateColumnHandler = {
   getCellProperties(row, col, props) {},
   getRowProperties(row, props) {},
   getImageSrc(row, col) { return null; },
-  getSortLongForRow(hdr) {
-    let dateString = this.getDateString(hdr);
-    if (dateString === "") {
-      // 1. January 2200 13:37:07
-      return 7258167427;
-    } else if (dateString === "keine Frist") {
-      // 1. January 2200 13:37:00
-      return 7258167420;
-    }
-
-    let dmy = dateString.split(".");
-    // (dmy[1]) - 1: because JavaScript counts months from 0
-    return new Date(dmy[2], dmy[1] - 1, dmy[0]).valueOf() / 1000;
-  },
-  getDateString(aHeader) {
-    let dateString = "";
+  getSortLongForRow(hdr) {return this.getDateString(hdr, "sort");},
+  getDateString(aHeader, returnType) {
     if(aHeader.mime2DecodedSubject) {
+      const regex = /(3[01]|[12][0-9]|0?[1-9])\.(1[012]|0?[1-9])\.((?:19|20)\d{2})|(3[01]|[12][0-9]|0?[1-9]).?\s?([a-zA-Zä]+).?((?:19|20)\d{2})|(keine Frist)/gi;
       // extension import-export-tools-ng uses mime2DecodedSubject
-      dateString = aHeader.mime2DecodedSubject;
-      // let match = dateString.match(/(3[01]|[12][0-9]|0?[1-9])\.(1[012]|0?[1-9])\.((?:19|20)\d{2})/);
-      let match = dateString.match(/(3[01]|[12][0-9]|0?[1-9])\.(1[012]|0?[1-9])\.((?:19|20)\d{2})|(3[01]|[12][0-9]|0?[1-9]).?\s?([a-zA-Zä]+).?((?:19|20)\d{2})|(keine Frist)/);
-      if (match == null) {
-        return dateString = "";
+      let matches = aHeader.mime2DecodedSubject.matchAll(regex);
+      let noDeadlineString = false;
+      let dates = [];
+
+      for (const match of matches) {
+        let dateString = "";
+        // number month
+        if (match[1] && match[2] && match[3]) {
+          dateString = [ match[1].padStart(2, "0"), match[2].padStart(2, "0"), match[3] ];
+        // name month
+        } else if (match[4] && match[5] && match[6]) {
+          let months = {
+            'Jänner': '01', 'Januar': '01', 'January': '01',
+            'Februar': '02', 'February': '02',
+            'März': '03', 'March': '03',
+            'April': '04',
+            'Mai': '05', 'May': '05',
+            'Juni': '06', 'June': '06',
+            'Juli': '07', 'July': '07',
+            'August': '08',
+            'September': '09',
+            'Oktober': '10', 'October': '10',
+            'November': '11',
+            'Dezember': '12', 'December': '12'
+          }
+
+          let month = match[5];
+          if (!months[month]) {continue}
+          dateString = [ match[4].padStart(2, 0), months[month], match[6] ];
+        // keine Frist
+        } else if (match[7]) {
+          noDeadlineString = true;
+          continue;
+        }
+
+        if (dateString && dateString.length === 0) {continue}
+        let date = new Date(dateString[2] + "-" + dateString[1] + "-" + dateString[0]).valueOf() / 1000;
+        // Integer check for Math.min
+        if (Number.isInteger(date)) {dates.push(date)}
       }
-      // number month
-      if (match[1] && match[2] && match[3]) {
-        dateString = match[1].padStart(2,0) + "." +  match[2].padStart(2,0) + "." + match[3];
-      // name month
-      } else if (match[4] && match[5] && match[6]) {
-        let months = {
-          'Jänner' : '01', 'Januar' : '01', 'January' : '01',
-          'Februar' : '02', 'February' : '02',
-          'März' : '03', 'March' : '03',
-          'April' : '04',
-          'Mai' : '05', 'May' : '05',
-          'Juni' : '06', 'June' : '06',
-          'Juli' : '07', 'July' : '07',
-          'August' : '08',
-          'September' : '09',
-          'Oktober' : '10', 'October' : '10',
-          'November' : '11',
-          'Dezember' : '12', 'December' : '12'
-        }
 
-        let month = match[5];
-        if (!months[month]) {
-          return "";
+      if (dates.length === 0 && !noDeadlineString) {
+        if (returnType === "sort") {
+          // 1. January 2200 13:37:07
+          return 7258167427;
         }
-
-        dateString = match[4].padStart(2,0) + "." +  months[month] + "." + match[6];
-      } else if (match[7]) {
+        return "";
+      } else if (dates.length === 0 && noDeadlineString) {
+        if (returnType === "sort") {
+          // 1. January 2200 13:37:00
+          return 7258167420;
+        }
         return "keine Frist";
+      } else if (dates.length > 0) {
+        let minDate = Math.min(...dates);
+        if (returnType === "sort") {
+          return minDate;
+        }
+        // minDate EpochTime in Seconds
+        return new Date(minDate*1000)
+            .toLocaleString('de-AT', { timeZone: 'UTC', year: 'numeric', month: '2-digit', day: '2-digit'});
       }
     }
-    return dateString;
-    },
+  },
   isDummy(row) { return (this.win.gDBView.getFlagsAt(row) & MSG_VIEW_FLAG_DUMMY) != 0; }
 };
 
