@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Betreff-Datum Spalte",
   "description": "findet Datum im Betreff und zeigt es in einer Spalte an",
-  "version": "1.1.3",
+  "version": "1.1.5",
   "author": "Markus Eberl",
   "applications": {
     "gecko": {
