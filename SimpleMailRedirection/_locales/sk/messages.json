@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "Hotovo"
+    },
+    "default": {
+        "message": "Uložiť ako"
+    },
+    "restore": {
+        "message": "Opraviť"
+    },
+    "list": {
+        "message": "Zoznam"
+    },
+    "defaulttitle": {
+        "message": "Nastaviť ako predvolený"
+    },
+    "restoretitle": {
+        "message": "Obnoviť predvolenú sadu"
+    },
+    "openab": {
+        "message": "Otvoriť adresár"
     }
 }

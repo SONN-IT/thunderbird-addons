@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "Gotowe"
+    },
+    "default": {
+        "message": "Zapisz jako"
+    },
+    "restore": {
+        "message": "Odzyskaj"
+    },
+    "list": {
+        "message": "Lista"
+    },
+    "defaulttitle": {
+        "message": "Ustaw jako domyślne"
+    },
+    "restoretitle": {
+        "message": "Domyślny układ"
+    },
+    "openab": {
+        "message": "Książka adresowa"
     }
 }

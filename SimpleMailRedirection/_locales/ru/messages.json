@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "Готово"
+    },
+    "default": {
+        "message": "Сохранить как"
+    },
+    "restore": {
+        "message": "Восстановить"
+    },
+    "list": {
+        "message": "Список"
+    },
+    "defaulttitle": {
+        "message": "Установить по умолчанию"
+    },
+    "restoretitle": {
+        "message": "Восстановить по умолчанию"
+    },
+    "openab": {
+        "message": "Открыть адресную книгу"
     }
 }

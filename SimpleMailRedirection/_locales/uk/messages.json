@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "Готово"
+    },
+    "default": {
+        "message": "Зберегти як"
+    },
+    "restore": {
+        "message": "Відновити"
+    },
+    "list": {
+        "message": "Список"
+    },
+    "defaulttitle": {
+        "message": "Встановити типовим"
+    },
+    "restoretitle": {
+        "message": "Відновити типові"
+    },
+    "openab": {
+        "message": "Відкрити адресну книгу"
     }
 }

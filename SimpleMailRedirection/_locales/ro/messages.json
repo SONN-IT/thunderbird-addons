@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "Terminat"
+    },
+    "default": {
+        "message": "Salvează ca"
+    },
+    "restore": {
+        "message": "Recuperează"
+    },
+    "list": {
+        "message": "Listă"
+    },
+    "defaulttitle": {
+        "message": "Setează ca implicit"
+    },
+    "restoretitle": {
+        "message": "Revenire la setările implicite"
+    },
+    "openab": {
+        "message": "Deschide agenda de contacte"
     }
 }

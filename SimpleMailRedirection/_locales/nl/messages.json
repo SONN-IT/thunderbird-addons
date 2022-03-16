@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "Gereed"
+    },
+    "default": {
+        "message": "Opslaan als"
+    },
+    "restore": {
+        "message": "Herstellen"
+    },
+    "list": {
+        "message": "Lijst"
+    },
+    "defaulttitle": {
+        "message": "Als standaard instellen"
+    },
+    "restoretitle": {
+        "message": "Standaardset herstellen"
+    },
+    "openab": {
+        "message": "Adresboek openen"
     }
 }

@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "Feito"
+    },
+    "default": {
+        "message": "Guardar como"
+    },
+    "restore": {
+        "message": "Recuperar"
+    },
+    "list": {
+        "message": "Lista"
+    },
+    "defaulttitle": {
+        "message": "Utilizar como predefinida"
+    },
+    "restoretitle": {
+        "message": "Restaurar conjunto predefinido"
+    },
+    "openab": {
+        "message": "Abrir livro de endereços"
     }
 }

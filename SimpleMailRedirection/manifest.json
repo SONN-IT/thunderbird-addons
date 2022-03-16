@@ -3,7 +3,7 @@
   "name": "Simple Mail Redirection",
   "short_name": "SMR",
   "description": "__MSG_extensionDescription__",
-  "version": "1.18-SP-rc.17",
+  "version": "1.21-SP-18",
   "author": "Günter Gersdorf",
   "applications": {
     "gecko": {

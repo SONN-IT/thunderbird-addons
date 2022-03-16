@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "تم"
+    },
+    "default": {
+        "message": "احفظ باسم"
+    },
+    "restore": {
+        "message": "استرجع"
+    },
+    "list": {
+        "message": "قائمة"
+    },
+    "defaulttitle": {
+        "message": "اجعله المبدئي"
+    },
+    "restoretitle": {
+        "message": "استعد المجموعة المبدئيّة"
+    },
+    "openab": {
+        "message": "افتح دفتر العناوين"
     }
 }

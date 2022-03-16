@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "Baigta"
+    },
+    "default": {
+        "message": "Įrašyti kaip"
+    },
+    "restore": {
+        "message": "Atstatyti"
+    },
+    "list": {
+        "message": "Sąrašo"
+    },
+    "defaulttitle": {
+        "message": "Laikyti pirmąja"
+    },
+    "restoretitle": {
+        "message": "Numatytoji struktūra"
+    },
+    "openab": {
+        "message": "Atverti adresų knygą"
     }
 }

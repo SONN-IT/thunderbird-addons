@@ -20,11 +20,12 @@ const MAX_HEADER_LENGTH = 16384;
 var prefs={'debug': true};
 var windows=new Object;
 var appVersion;
+var filterScriptLoaded=false;
 
 //debug('entered');
 var smr = class extends ExtensionCommon.ExtensionAPI {
   onStartup() { 
-//pres.debug not set yet!
+//pref.debug not set yet!
 //debug('onStartup');
   }
 
@@ -44,6 +45,10 @@ debug('onShutdown isAppShutdown='+isAppShutdown);
 //debug('getApi entered');	//more than once!
 
     context.callOnClose(this);
+    if (!filterScriptLoaded) {
+      Services.scriptloader.loadSubScript(context.extension.rootURI.resolve("./smr_filter.js"));
+      filterScriptLoaded=true;
+    }
 		this.getAddon();
 
     return {
@@ -83,99 +88,20 @@ rts.forEach(addr=>debug('resentTo '+addr.to+' '+addr.email));
           windows[windowId].allowResend=false;
 //TEST:
 //mhs.forEach(mh=>windows[windowId][mh.id]['msgSend']='send_'+mh.id);
-          let resentTo='';
-          let resentCc='';
-          let resentBcc='';
-          rts.forEach(addr=>{
-            if (addr.to=='TO') resentTo+=addr.email+',';
-            else if (addr.to=='CC') resentCc+=addr.email+',';
-            else if (addr.to=='BCC') resentBcc+=addr.email+',';
-else debug('Unknown addr.to '+addr.to);
+          let resent=new Object();
+          rts.forEach(addr=>{     //.to is 'TO', 'CC' or 'BCC'
+            resent[addr.to]=resent[addr.to]?resent[addr.to]+',':'';
+            resent[addr.to]+=addr.email;
           });
-          resentTo=resentTo.replace(/,$/, '');
-          resentCc=resentCc.replace(/,$/, '');
-          resentBcc=resentBcc.replace(/,$/, '');
-debug('resentTo='+resentTo);
-debug('resentCc='+resentCc);
-debug('resentBcc='+resentBcc);
-
+debug('resent='+JSON.stringify(resent));
           let accountId=params.accountId; //mh.folder.accountId;
           let identity = MailServices.accounts.getIdentity(params.identityId);
           mhs.forEach((mh) => {
-            if (!mh.sending) return; // skip already successfull send messages
-            let msgHdr=context.extension.messageManager.get(mh.id);
-debug('got msgHdr id='+msgHdr.messageKey);
-/*obsolete
-            let mAccountId=mh.folder.accountId;
-            let path=mh.folder.path;
-debug('resent '+mh.subject+' ('+mh.author+') to: '+mAccountId+' '+path+' '+resentTo+'|'+resentCc+'|'+resentBcc);
-            let mAccount=MailServices.accounts.getAccount(mAccountId);
-            let folderURI=mAccount.incomingServer.rootFolder.URI+path;
-            let folder=MailUtils.getExistingFolder(folderURI);
-debug('msgHdr.folder.URI='+msgHdr.folder.URI+' folder.URI='+folder.URI);
-debug('msgHdr.folder.URL='+msgHdr.folder.folderURL+' folder.URL='+folder.folderURL);
-*/
-//debug('current keywords: '+msgHdr.getStringProperty("keywords"));
-            if (/(?:^| )redirected(?: |$)/.test(msgHdr.getStringProperty("keywords"))) {
-debug('..already resent!');
-/*
-debug('Test: remove redirected indicator from old version');
-//up to TB84
-let msg = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-msg.appendElement(msgHdr, false);
-//since TB85
-let msg=[msgHdr];
-msgHdr.folder.removeKeywordsFromMessages(msg, "resent");
-msgHdr.folder.addKeywordsToMessages(msg, "redirected");
-*/
+            if (mh.sending) {
+              let msgHdr=context.extension.messageManager.get(mh.id);
+              prepareMessage(msgHdr, accountId, identity, params, resent, windowId, mh.id);
             }
-            let msgUri = msgHdr.folder.generateMessageURI(msgHdr.messageKey);
-/*obsolete
-            let identity = account.defaultIdentity;
-						if (!identity) { //account has no identities (e.g. Local Folders), use default account
-							account=MailServices.accounts.defaultAccount;
-debug('account has no identities, use default identity of default account');
-              if (!account) { // not default account, use first imap account
-debug('no default account, use default identity of first usable account');
-                for (let a of MailServices.accounts.accounts) {
-                  if (a.defaultIdentity) {
-                    account=a;
-                    break;
-                  }
-                }
-              }
-							accountId=account.key;
-							identity = account.defaultIdentity;
-						}
-            if (!account) { // no usable account found
-              console.error('SMR: Could not redirect: no usable account found');
-              Services.prompt.alert(null, 'SimpleMailRedirect',
-                'Nachricht kann nicht umgeleitet werden, kein nutzbares Konto gefunden!\n'+
-                'Cannot redirect message, no usable account found!');
-              return;
-            }
-*/
-            let sender=MailServices.headerParser.makeMimeHeader([{name: identity.fullName, email: identity.email}], 1);
-debug('call resent URI='+msgUri+' sender='+sender);
-            let msgCompFields = Cc["@mozilla.org/messengercompose/composefields;1"].
-                             createInstance(Ci.nsIMsgCompFields);
-            if (resentTo) msgCompFields.to=resentTo;  //this converts to quoted printable!
-            if (resentCc) msgCompFields.cc=resentCc;  //this converts to quoted printable!
-            if (resentBcc) msgCompFields.bcc=resentBcc;  //this converts to quoted printable!
-            msgCompFields.from = sender;
-            if (params.copy2sent) {
-              msgCompFields.fcc = identity.fccFolder;
-debug('copy msg to '+identity.fccFolder);
-            } else {
-              msgCompFields.fcc = "nocopy://";
-            }
-            msgCompFields.fcc2 = "";	//was "nocopy://", but TB91 needs ""
-						let messageId = Cc["@mozilla.org/messengercompose/computils;1"].
-              createInstance(Ci.nsIMsgCompUtils).
-              msgGenerateMessageId(identity);
-						msgCompFields.messageId=messageId;
-            resentMessage(mh.id, windowId, msgUri, accountId, msgCompFields, identity);
-          }); //end loop over mhs
+          });
 				},
         abort: async function(windowId, msgId) {
 debug('abort windowId='+windowId+' msgId='+msgId);
@@ -294,7 +220,6 @@ debug('searchQuery: '+searchQuery);
 debug('cb: searchString: '+searchString);
 //"g. g" -> "GG" and Gün - >GUN
 
-/*	ignore autocompleteRestrictSearch*/
 debug('cb: autocompleteRestrictSearch: '+cardbookRepository.autocompleteRestrictSearch);
 						let searchArray = cardbookRepository.autocompleteRestrictSearch
 										? cardbookRepository.cardbookCardShortSearch
@@ -433,6 +358,81 @@ function cardBookSearch(aCard) {
 }
 
 ////////////////////////////////////////////////////////////////
+function prepareMessage(msgHdr, accountId, identity, params, resent, windowId, msgId) {
+debug('got msgHdr id='+msgHdr.messageKey);
+/*obsolete
+  let mAccountId=mh.folder.accountId;
+  let path=mh.folder.path;
+debug('resent '+mh.subject+' ('+mh.author+') to: '+mAccountId+' '+path+' '+JSON.stringify(resent));
+  let mAccount=MailServices.accounts.getAccount(mAccountId);
+  let folderURI=mAccount.incomingServer.rootFolder.URI+path;
+  let folder=MailUtils.getExistingFolder(folderURI);
+debug('msgHdr.folder.URI='+msgHdr.folder.URI+' folder.URI='+folder.URI);
+debug('msgHdr.folder.URL='+msgHdr.folder.folderURL+' folder.URL='+folder.folderURL);
+*/
+//debug('current keywords: '+msgHdr.getStringProperty("keywords"));
+  if (/(?:^| )redirected(?: |$)/.test(msgHdr.getStringProperty("keywords"))) {
+debug('..already resent!');
+/*
+debug('Test: remove redirected indicator from old version');
+//up to TB84
+let msg = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+msg.appendElement(msgHdr, false);
+//since TB85
+let msg=[msgHdr];
+msgHdr.folder.removeKeywordsFromMessages(msg, "resent");
+msgHdr.folder.addKeywordsToMessages(msg, "redirected");
+*/
+  }
+  let msgUri = msgHdr.folder.generateMessageURI(msgHdr.messageKey);
+/*obsolete
+  let identity = account.defaultIdentity;
+  if (!identity) { //account has no identities (e.g. Local Folders), use default account
+    account=MailServices.accounts.defaultAccount;
+debug('account has no identities, use default identity of default account');
+    if (!account) { // not default account, use first imap account
+debug('no default account, use default identity of first usable account');
+      for (let a of MailServices.accounts.accounts) {
+        if (a.defaultIdentity) {
+          account=a;
+          break;
+        }
+      }
+    }
+    accountId=account.key;
+    identity = account.defaultIdentity;
+  }
+  if (!account) { // no usable account found
+    console.error('SMR: Could not redirect: no usable account found');
+    Services.prompt.alert(null, 'SimpleMailRedirect',
+      'Nachricht kann nicht umgeleitet werden, kein nutzbares Konto gefunden!\n'+
+      'Cannot redirect message, no usable account found!');
+    return;
+  }
+*/
+  let sender=MailServices.headerParser.makeMimeHeader([{name: identity.fullName, email: identity.email}], 1);
+debug('call resent URI='+msgUri+' sender='+sender);
+  let msgCompFields = Cc["@mozilla.org/messengercompose/composefields;1"].
+                   createInstance(Ci.nsIMsgCompFields);
+  if (resent['TO']) msgCompFields.to=resent['TO'];  //this converts to quoted printable!
+  if (resent['CC']) msgCompFields.cc=resent['CC'];  //this converts to quoted printable!
+  if (resent['BCC']) msgCompFields.bcc=resent['BCC'];  //this converts to quoted printable!
+  msgCompFields.from = sender;
+  if (params.copy2sent) {
+    msgCompFields.fcc = identity.fccFolder;
+debug('copy msg to '+identity.fccFolder);
+  } else {
+    msgCompFields.fcc = "nocopy://";
+  }
+  msgCompFields.fcc2 = "";	//was "nocopy://", but TB91 needs ""
+  let messageId = Cc["@mozilla.org/messengercompose/computils;1"].
+    createInstance(Ci.nsIMsgCompUtils).
+    msgGenerateMessageId(identity);
+  msgCompFields.messageId=messageId;
+  resentMessage(msgId, windowId, msgUri, accountId, msgCompFields, identity);
+}
+
+////////////////////////////////////////////
 
 function nsMsgSendListener(msgId, windowId, msgUri, tmpFile) {
   this.msgId=msgId;
@@ -462,6 +462,7 @@ debug('onProgress '+progress+' up to  '+progressMax);
   onStartSending(msgId, msgSize) {
     //msgId is null
     //msgSize is always 0 :-(
+    if (!this.windowId) return;  //filter
     if (windows[this.windowId].fire) {
 debug('started: notify popup window');
       windows[this.windowId].fire.async({msgid: this.msgId, type: 'started', size: this.size});
@@ -470,14 +471,15 @@ debug('started: popup window has vanished');
     }
   },
   onStopSending(aMsgID, aStatus, aMsg, returnFileSpec) {
-    //aMsgID is empty
 debug('nsMsgSendListener.onStopSending '+aMsgID+', '+aStatus +', '+aMsg+', '+returnFileSpec+' '+this.msgUri );
     let allowResend='';
     //with old MsgSend (TB78) we might have success even if message has been aborted
+    if (this.windowId) {  //!filter
 debug('  state='+windows[this.windowId][this.msgId].state);
-    if (!MsgUtils && !aStatus && windows[this.windowId][this.msgId].state=='abort') {
-      aStatus=0x805530ef;
+      if (!MsgUtils && !aStatus && windows[this.windowId][this.msgId].state=='abort') {
+        aStatus=0x805530ef;
 debug('   success but abort: set to failed');
+      }
     }
     if (aStatus) {
       //aMsgID is empty on error
@@ -512,6 +514,7 @@ debug(e);
       }
 //debug('keywords set to: '+msgHdr.getStringProperty("keywords"));
     }
+    if (!this.windowId) return;  //filter
     if (windows[this.windowId].fire) {
 debug('finished: notify popup window');
       windows[this.windowId].fire.async({msgid: this.msgId, type: 'finished', state: aStatus, allowResend: allowResend});
@@ -546,6 +549,8 @@ debug('nsMsgSendListener.onSendNotPerformed: msgId='+aMsgID+' status='+aStatus);
 debug('nsMsgSendListener.onTransportSecurityError');
   }
 }
+
+////////////////////////////////////////////
 
 function resentMessage(msgId, windowId, uri, accountId, msgCompFields, identity) {
 debug('resentMessage ' + uri);
@@ -597,7 +602,7 @@ let test=msgCompFields.to.toLowerCase().includes('testggbs@ggbs.de')||
           msgCompFields.to.toLowerCase().includes('ggbstest@ggbs.de')||
           msgCompFields.to.toLowerCase().includes('test@ggbs.de')||
           msgCompFields.to.toLowerCase().includes('ggbs@ggbs.de');
-      if (windows[windowId][msgId].state=='abort') {
+      if (windowId/*!filter*/ && windows[windowId][msgId].state=='abort') {
 debug('abort: remove tmpfile');
         tmpFile.remove(false);
         if (windows[windowId].fire) {
@@ -614,7 +619,7 @@ debug('delete windowId '+windowId);
       }
 //TEST
 debug('file copied to tempfile '+tmpFile.path);
-if (test) {
+if (windowId/*!filter*/ && test) {
 console.log('SMR: TEST mode, no msgSend');  //even if no debug
 for (const [windowId, data] of Object.entries(windows)) {
   for (const [msgId, mh] of Object.entries(data)) {
@@ -657,7 +662,7 @@ debug('account='+accountId+' identity='+identity.fullName+' <'+identity.email+'>
       let msgSendListener = new nsMsgSendListener(msgId, windowId, uri, tmpFile);
       let msgSend = Cc["@mozilla.org/messengercompose/send;1"].
                     createInstance(Ci.nsIMsgSend);
-      windows[windowId][msgId].msgSend=msgSend;
+      if (windowId/*!filter*/) windows[windowId][msgId].msgSend=msgSend;
 
 //mode: nsMsgDeliverNow, nsMsgQueueForLater, nsMsgDeliverBackground
 //msgSend.nsMsgDeliverBackground, msgSend.nsMsgQueueForLater:
@@ -688,7 +693,7 @@ debug('compFields: '+JSON.stringify(msgCompFields));
 
     onDataAvailable: function(aRequest, aInputStream, aOffset, aCount) {
 debug('onDataAvailable');
-      if (windows[windowId][msgId].state=='abort') {
+      if (windowId/*!filter*/ && windows[windowId][msgId].state=='abort') {
 debug('onDataAvailable aborted');
 //        throw 'aborted';
           //see https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIStreamListener

@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "U bë"
+    },
+    "default": {
+        "message": "Ruaje Si"
+    },
+    "restore": {
+        "message": "Rimerre"
+    },
+    "list": {
+        "message": "Listë"
+    },
+    "defaulttitle": {
+        "message": "Vëre si Parazgjedhje"
+    },
+    "restoretitle": {
+        "message": "Rikthe Grupin Parazgjedhje"
+    },
+    "openab": {
+        "message": "Hap Libër Adresash"
     }
 }

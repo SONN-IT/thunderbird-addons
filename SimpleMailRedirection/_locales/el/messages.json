@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "Τέλος"
+    },
+    "default": {
+        "message": "Αποθήκευση ως"
+    },
+    "restore": {
+        "message": "Ανάκτηση"
+    },
+    "list": {
+        "message": "Λίστα"
+    },
+    "defaulttitle": {
+        "message": "Ορισμός ως προεπιλεγμένου"
+    },
+    "restoretitle": {
+        "message": "Επαναφορά προεπιλεγμένου σετ"
+    },
+    "openab": {
+        "message": "Άνοιγμα βιβλίου διευθύνσεων"
     }
 }

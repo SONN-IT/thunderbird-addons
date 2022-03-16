@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "Valmis"
+    },
+    "default": {
+        "message": "Tallenna nimellä"
+    },
+    "restore": {
+        "message": "Palauta"
+    },
+    "list": {
+        "message": "Luettelo"
+    },
+    "defaulttitle": {
+        "message": "Aseta oletukseksi"
+    },
+    "restoretitle": {
+        "message": "Palauta oletusasetukset"
+    },
+    "openab": {
+        "message": "Avaa osoitekirja"
     }
 }

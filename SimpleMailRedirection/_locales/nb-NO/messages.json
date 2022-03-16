@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "Ferdig"
+    },
+    "default": {
+        "message": "Lagre som"
+    },
+    "restore": {
+        "message": "Gjenopprett"
+    },
+    "list": {
+        "message": "Liste"
+    },
+    "defaulttitle": {
+        "message": "Bruk som standard"
+    },
+    "restoretitle": {
+        "message": "Gjenopprett standardsett"
+    },
+    "openab": {
+        "message": "Åpne adressebok"
     }
 }

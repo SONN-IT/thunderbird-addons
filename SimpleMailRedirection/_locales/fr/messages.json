@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "Terminé"
+    },
+    "default": {
+        "message": "Enregistrer comme"
+    },
+    "restore": {
+        "message": "Rétablir"
+    },
+    "list": {
+        "message": "de la liste"
+    },
+    "defaulttitle": {
+        "message": "Compte par défaut"
+    },
+    "restoretitle": {
+        "message": "Configuration par défaut"
+    },
+    "openab": {
+        "message": "Ouvrir le carnet d’adresses"
     }
 }

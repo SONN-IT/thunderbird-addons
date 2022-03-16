@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "完了"
+    },
+    "default": {
+        "message": "選択して保存"
+    },
+    "restore": {
+        "message": "復旧"
+    },
+    "list": {
+        "message": "リスト"
+    },
+    "defaulttitle": {
+        "message": "既定のアカウントに設定"
+    },
+    "restoretitle": {
+        "message": "初期設定に戻す"
+    },
+    "openab": {
+        "message": "アドレス帳を開く"
     }
 }

@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "Selesai"
+    },
+    "default": {
+        "message": "Simpan sebagai"
+    },
+    "restore": {
+        "message": "Kembalikan"
+    },
+    "list": {
+        "message": "Daftar"
+    },
+    "defaulttitle": {
+        "message": "Atur sebagai Default"
+    },
+    "restoretitle": {
+        "message": "Pulihkan Pengelompokan Tetap"
+    },
+    "openab": {
+        "message": "Buka Buku Alamat"
     }
 }
