@@ -3,7 +3,7 @@
   "name": "Simple Mail Redirection",
   "short_name": "SMR",
   "description": "__MSG_extensionDescription__",
-  "version": "1.18-SP-rc.16",
+  "version": "1.18-SP-rc.17",
   "author": "Günter Gersdorf",
   "applications": {
     "gecko": {
@@ -13,7 +13,6 @@
       "strict_max_version": "*"
     }
   },
-  // also see https://firefox-source-docs.mozilla.org/toolkit/components/extensions/webextensions/basics.html
   "experiment_apis": {
     "smr": {
       "schema": "schema.json",
