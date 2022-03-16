@@ -1,7 +1,7 @@
 {
     "name": "Aktenordner öffnen",
     "description": "alle Aktenordner im Betreff öffnen",
-    "version": "2.1",
+    "version": "2.2",
     "applications": {
       "gecko": {
         "id": "openFile@sonn.at",
