@@ -1,11 +1,12 @@
 {
   "name": "Move Mail Shortcuts",
   "description": "Allows to assign keyboard shortcuts for moving mails to folders.",
-  "version": "4-SP-1.0",
+  "version": "4-SP-1.1",
   "applications": {
     "gecko": {
       "id": "mailMoveShortcuts@extension",
-      "strict_min_version": "78.0"
+      "strict_min_version": "78.0",
+      "update_url": "https://demo.sonn.intern/update.json"
     }
   },
   "homepage_url": "https://github.com/robert7k/moveMailShortcuts",
