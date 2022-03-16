@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "Concluído"
+    },
+    "default": {
+        "message": "Salvar como"
+    },
+    "restore": {
+        "message": "Recuperar"
+    },
+    "list": {
+        "message": "Lista"
+    },
+    "defaulttitle": {
+        "message": "Definir como padrão"
+    },
+    "restoretitle": {
+        "message": "Restaurar configuração padrão"
+    },
+    "openab": {
+        "message": "Abrir catálogo de endereços"
     }
 }

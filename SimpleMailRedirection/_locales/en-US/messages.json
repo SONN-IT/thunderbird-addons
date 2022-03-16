@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "Done"
+    },
+    "default": {
+        "message": "Save As"
+    },
+    "restore": {
+        "message": "Recover"
+    },
+    "list": {
+        "message": "List"
+    },
+    "defaulttitle": {
+        "message": "Set as Default"
+    },
+    "restoretitle": {
+        "message": "Restore Default Set"
+    },
+    "openab": {
+        "message": "Open Address Book"
     }
 }

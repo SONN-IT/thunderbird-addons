@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "Урађено"
+    },
+    "default": {
+        "message": "Сачувај као"
+    },
+    "restore": {
+        "message": "Опорави"
+    },
+    "list": {
+        "message": "Списак"
+    },
+    "defaulttitle": {
+        "message": "Постави као подразумевано"
+    },
+    "restoretitle": {
+        "message": "Врати подразумевани комплет"
+    },
+    "openab": {
+        "message": "Отвори именик"
     }
 }

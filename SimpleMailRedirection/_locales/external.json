@@ -93,5 +93,41 @@
       "file": "accountCreation.dtd",
       "key": "doneAccount.label",
       "_de": "Erledigt"
+  },
+  "default": {
+      "default": "Save as",
+      "file": "messengercompose/messengercompose.dtd",
+      "key": "saveAsCmd.label",
+      "_de": "Speichern als"
+  },
+  "defaulttitle": {
+      "default": "Set as Default",
+      "file": "AccountManager.dtd",
+      "key": "setDefaultButton.label",
+      "_de": "Als Standard setzen"
+  },
+  "restore": {
+      "default": "Recover",
+      "file": "activity.dtd",
+      "key": "cmd.recover.label",
+      "_de": "Standard wiederherstellen"
+  },
+  "restoretitle": {
+      "default": "Restore Default Set",
+      "file": "customizeToolbar.dtd",
+      "key": "restoreDefaultSet.label",
+      "_de": "Standard wiederherstellen"
+  },
+  "list": {
+      "default": "List",
+      "file": "messengercompose/editor.properties",
+      "key": "List",
+      "_de": "Liste"
+  },
+  "openab": {
+      "default": "Open Address Book",
+      "file": "messenger.dtd",
+      "key": "openAddressBookDock.label",
+      "_de": "Adressbuch öffnen"
   }
 }

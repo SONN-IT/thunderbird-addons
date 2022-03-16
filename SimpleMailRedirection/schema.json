@@ -1,0 +1,126 @@
+[
+  {
+    "namespace": "smr",
+    "functions": [
+      {
+        "name": "init",
+        "type": "function",
+        "async": true,
+        "parameters": [
+          {
+            "name": "options",
+            "type": "any",
+            "description": "options for init"
+          }
+        ]
+      },
+      {
+        "name": "redirect",
+        "type": "function",
+        "async": true,
+        "parameters": [
+          {
+            "name": "mailheaders",
+            "type": "any",
+            "description": "Array of MessageHeaders to resent"
+          },
+          {
+            "name": "resentTo",
+            "type": "any",
+            "description": "Array of recipients for the messages"
+          },
+          {
+            "name": "params",
+            "type": "any",
+            "description": "object with accountId, identityId, save to sent folder"
+          },
+          {
+            "name": "windowId",
+            "type": "number",
+            "description": "Window id"
+          },
+          {
+            "name": "prefs",
+            "type": "any",
+            "description": "Object of preferences"
+          }
+				]
+      },
+      {
+        "name": "abort",
+        "type": "function",
+        "async": true,
+        "parameters": [
+          {
+            "name": "windowId",
+            "type": "number",
+            "description": "window id"
+          },
+          {
+            "name": "msgId",
+            "type": "number",
+            "description": "id of message to abort"
+          }
+				]
+      },
+      {
+        "name": "cb_exists",
+        "type": "function",
+        "async": true,
+        "parameters": []
+      },
+      {
+        "name": "cb_open",
+        "type": "function",
+        "async": true,
+        "parameters": []
+      },
+      {
+        "name": "cb_list",
+        "type": "function",
+        "async": true,
+        "parameters": [
+          {
+            "name": "list",
+            "type": "string",
+            "description": "list to find (else return array of lists)"
+          }
+				]
+      },
+      {
+        "name": "cb_search",
+        "type": "function",
+        "async": true,
+        "parameters": [
+          {
+            "name": "search",
+            "type": "string",
+            "description": "search string"
+          }
+				]
+      }
+    ],
+    "events": [
+      {
+        "name": "onMailSent",
+        "type": "function",
+        "description": "Fires when a mail has been sent",
+        "parameters": [
+          {
+            "name": "changed",
+            "type": "any",
+            "description": "object with message sent"
+          }
+        ],
+        "extraParameters": [
+          {
+            "name": "windowId",
+            "description": "Id of current window",
+            "type": "number"
+          }
+        ]
+      }
+    ]
+
+  }
+]

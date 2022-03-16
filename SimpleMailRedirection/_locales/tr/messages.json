@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "Bitti"
+    },
+    "default": {
+        "message": "Farklı kaydet"
+    },
+    "restore": {
+        "message": "Kurtar"
+    },
+    "list": {
+        "message": "Liste"
+    },
+    "defaulttitle": {
+        "message": "Varsayılan olarak ayarla"
+    },
+    "restoretitle": {
+        "message": "Varsayılanları geri yükle"
+    },
+    "openab": {
+        "message": "Adres defterini aç"
     }
 }

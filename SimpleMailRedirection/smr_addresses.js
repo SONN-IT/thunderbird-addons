@@ -12,6 +12,7 @@ var origAcctId;
 var sendOk=true;
 var allowResend=false;
 var doneText;
+var inputTimer=null;
 let sonnAblageExtras = {
     rangeFromInput: null,
     rangeToInput: null,
@@ -47,13 +48,16 @@ function validate(elem) {
 	}
   let i=document.getElementsByClassName('address invalid').length;
   let v=document.getElementsByClassName('address valid').length;
-  if (i || !v) {
-    document.getElementById('addressOK').disabled=true;
-		allValid=false;
-  } else {
+//debug('validate emails: valid='+v+' invalid='+i);
+  if (!i && v) {
     document.getElementById('addressOK').disabled=false;
+    //document.getElementById('default').disabled=false;
 		allValid=true;
-	}
+  } else {
+    document.getElementById('addressOK').disabled=true;
+    // if (i) document.getElementById('default').disabled=true;
+	// 	allValid=false;
+  }
 }
 
 async function okAndInput(ev) {
@@ -63,9 +67,9 @@ async function okAndInput(ev) {
   }
 	ev.stopPropagation();
 	if (ev.type == "keydown") {
-    let sel=document.getElementById('results');
+    let results=document.getElementById('results');
     if (ev.key == "Enter") {
-      if (sel) sel.parentNode.removeChild(sel);
+      if (results) results.parentNode.removeChild(results);
       if (ev.target.value) {
         newInput(ev.target);
         validate(ev.target);
@@ -74,10 +78,10 @@ async function okAndInput(ev) {
 			}
     } else if (ev.key=='ArrowDown' || ev.key=='Tab') {
 //debug('key down');
-      if (sel) {
-        sel.focus();
-        sel.firstChild.selected=true;
-        ev.preventDefault();  //else sel scrolls
+      if (results) {
+        results.focus();
+        results.firstChild.selected=true;
+        ev.preventDefault();  //else results scrolls
       }
     } else if (ev.key == "Escape") {
 //debug('cancel (Escape)');
@@ -89,8 +93,8 @@ async function okAndInput(ev) {
 
 async function send() {
 debug('sending messages wid='+wid);
-  let sel=document.getElementById('results');
-  if (sel) sel.parentNode.removeChild(sel);	//remove search resultsbox if still visible
+  let results=document.getElementById('results');
+  if (results) results.parentNode.removeChild(results);	//remove search resultsbox if still visible
 
   let [ acct, iden ]=document.getElementById("accountsel").value.split('|');
 debug('Account: '+acct+' '+iden);
@@ -188,7 +192,7 @@ debug('copy='+copy);
 debug('send done');
   document.getElementById("addressOK").disabled=true;  //disable send button
   let inps=document.getElementsByTagName('input');
-  for (let inp of inps) if (inp.type=='text') inp.disabled=true;  //disable all input fields
+  for (let inp of inps) if (inp.type=='text') inp.disabled=true;  //disable all text input fields
   
   document.getElementsByTagName('body')[0].scrollIntoView(
     { block: 'start', inline: 'nearest', behavior: 'smooth'} );
@@ -280,7 +284,7 @@ debug('no more messages, allowResend='+allowResend);
       if (allowResend) {
         document.getElementById("addressOK").disabled=false;  //reenable send button
         let inps=document.getElementsByTagName('input');
-        for (let inp of inps) if (inp.type=='text') inp.disabled=false;  //reenable all input fields
+        for (let inp of inps) if (inp.type=='text') inp.disabled=false;  //reenable all text input fields
         msgCount=msgs.length; //reinitialize msgCount
         msgs.forEach(msg=>{
           if (!msg.state) msgCount--;
@@ -293,18 +297,8 @@ debug('no more messages, allowResend='+allowResend);
         });
       }
       document.getElementById("addressCANCEL").value=messenger.i18n.getMessage('close');
-      if (sendOk && prefs.closeonsuccess) {
-          setTimeout(()=>{ removeWin(); }, prefs.delay*1000);
-      } else {
-          messenger.windows.update(wid, {focused: true})
-              .then((w) => {
-                  // do something
-                  // console.log(w);
-              })
-              .catch((e) => {
-                  // error
-              });
-      }
+      if (sendOk && prefs.closeonsuccess)
+        setTimeout(()=>{ removeWin(); }, prefs.delay*1000);
     }
   }
 }
@@ -319,12 +313,15 @@ async function load() {
         changefrom: {},
         copytosent: true,
         closeonsuccess: true,
+	    defaults: {},
         SonnResentDefaultAddr: []
     });
 
     //console.log("prefs: ", prefs);
 
     //dont use storage.local.get() (without arg), see https://thunderbird.topicbox.com/groups/addons/T46e96308f41c0de1
+//delete prefs.defaults;
+  if (!prefs.defaults['*']) prefs.defaults['*']=[];
 debug('load: wid='+wid+' prefs='+JSON.stringify(prefs));
 debug('  allowResend='+allowResend);
 
@@ -338,17 +335,24 @@ debug('we already have a listener');
     let email=document.getElementById("email");
     email.addEventListener('keydown', okAndInput);
     email.addEventListener('drop', drop);
-    email.addEventListener('input', search);
+    email.addEventListener('input', (ev)=>{ clearTimeout(inputTimer); inputTimer=setTimeout(()=>{search(ev);}, 10) } );  //catch too quick input
     setTimeout(()=>{ email.focus();	debug('focus now '+document.activeElement.tagName); }, 500);  //does not work in TB88
     //document.getElementById("ab").addEventListener('click', openAB);
-    document.getElementById("deleteAddresses").addEventListener('click', removeResentAddr);
-    document.getElementById("extrasAblageButton").addEventListener('click', toggleExtrasAblage);
     document.getElementById("body").addEventListener('keydown', bodykey);
     document.getElementById("accountsel").addEventListener('change', accountchange);
     document.getElementById("changefrom").addEventListener('change', togglechangefrom);
     // document.getElementById("closeonsuccess").addEventListener('change', togglecloseonsuccess);
     document.getElementById("delay").addEventListener('change', changedelay);
     document.getElementById("debug").addEventListener('change', toggledebug);
+    //document.getElementById("default").addEventListener('click', setDefaultAddresses);
+    //document.getElementById("default").addEventListener('mouseenter', tooltip);
+    //document.getElementById("restore").addEventListener('click', restoreDefaultAddresses);
+    //document.getElementById("restore").addEventListener('mouseenter', tooltip);
+    document.getElementById("deleteAddresses").addEventListener('click', removeResentAddr);
+    document.getElementById("extrasAblageButton").addEventListener('click', toggleExtrasAblage);
+    // document.getElementById("defName").addEventListener('input', (event)=>{
+    //   if (event.target.value) event.target.classList.remove('defName');
+    //                      else event.target.classList.add('defName');});
 
     let msgSubjects="";
 
@@ -371,14 +375,12 @@ debug('we already have a listener');
         td.addEventListener('click', removeMsg);
         tr.appendChild(td);
         td=document.createElement('td');
-        td.className="tdMailSubject";
         td.textContent=msg.subject;
         tr.appendChild(td);
         td=document.createElement('td');  //progressbar
         //td.className='pb';
         tr.appendChild(td);
         td=document.createElement('td');
-        td.className="tdMailAuthor";
         td.textContent=msg.author;
         tr.appendChild(td);
         td=document.createElement('td');
@@ -398,7 +400,7 @@ debug('we already have a listener');
     try {
         accounts=await messenger.accounts.list();	//array of MailAccount
     } catch(e) {
-        console.log('SMR: %-sign in foldernames problem, see bug 1684327');
+        debug('%-sign in foldernames problem, see bug 1684327');
         const msg='<div style="color: red;"><div style="margin: 2em;">Bitte entfernen sie alle %-Zeichen aus Ordnernamen!<br/>\
 Es gibt einen Fehler in Thunderbird, der die Ausführung dieses Add-ons verhindert.<br/>Siehe Bug 1684327</div>\
 <div style="margin: 2em;">Please remove any %-signs from foldernames!<br/>\
@@ -539,8 +541,6 @@ debug('using '+defAcctId+' '+defIdenId);
     prefs.size=12;
     body.style.fontSize = size+"px";
     body.style.display = "block";
-    //document.getElementById("email").focus();
-    document.getElementsByClassName("empty")[0].focus();
 
 // communication with cardbook, cardbook needs to use NotifyTools
 	let have_cardbook=0;
@@ -597,7 +597,7 @@ debug('cb_lists: '+JSON.stringify(cb_lists));
       });
     }
   }
-//if (!cardbook) console.log('SMR: cardbook not installed');
+//if (!cardbook) debug('cardbook not installed');
 
 	if (!cardbook || cardbook>1) {	// get TB's mailLists
 		let abs=await messenger.addressBooks.list();
@@ -616,6 +616,9 @@ debug('cb_lists: '+JSON.stringify(cb_lists));
 		};
 	}
 //debug('lists: '+mLists.size+' '+JSON.stringify(Array.from(mLists.entries())));
+
+  // builddatalist();
+  // restoreDefaultAddresses('*');  // restore default set
 }
 
 function accountchange(ev) {
@@ -642,11 +645,12 @@ debug(JSON.stringify(prefs));
 
 
 async function search(ev) {
-  let sel=document.getElementById('results');
+  inputTimer=null;
+  let results=document.getElementById('results');
   validate(ev.target);
 	let sv=ev.target.value;
   if (sv.length<2) {
-    if (sel) sel.style.display='none';
+    if (results) results.style.display='none';
     return;
   }
 	let addresses=[];
@@ -697,19 +701,21 @@ debug('search: '+sv);
 
 //debug('found '+addresses.length);
   if (addresses.length && addresses.length<=50) {
-    if (sel) {
-      while (sel.firstChild) sel.removeChild(sel.lastChild);
-      sel.style.display='block';
+    if (results) {
+debug('search: reuse results box');
+      while (results.firstChild) results.removeChild(results.lastChild);
+      results.style.display='block';
     } else {
-      sel=document.createElement('select');
-      sel.id='results';
-      sel.multiple=true;
-      sel.autocomplete='off';
-      sel.addEventListener('keyup', selectitem);
-      sel.addEventListener('keydown', selectitem);
-      sel.addEventListener('click', selectitem);
+debug('search: create results box');
+      results=document.createElement('select');
+      results.id='results';
+      results.multiple=true;
+      results.autocomplete='off';
+      results.addEventListener('keyup', selectitem);
+      results.addEventListener('keydown', selectitem);
+      results.addEventListener('click', selectitem);
     }
-    sel.size=addresses.length<=5?addresses.length:5;
+    results.size=addresses.length<=5?addresses.length:5;
     addresses.forEach(address =>{
       let opt=document.createElement('option');
 			if (address.email) {            //email
@@ -723,24 +729,24 @@ debug('search: '+sv);
         opt.style.backgroundColor=address.bcolor;
         opt.style.color=address.fcolor;
       }
-      sel.appendChild(opt);
+      results.appendChild(opt);
     });
-    ev.target.parentNode.parentNode.insertBefore(sel, ev.target.parentNode.nextSibling); //appends if no nextSibling
+    ev.target.parentNode.parentNode.insertBefore(results, ev.target.parentNode.nextSibling); //appends if no nextSibling
 /*
     let offset=document.getElementById("address").offsetTop;
 //debug('offset='+offset);
-//debug('div.clientHeight='+sel.parentNode.clientHeight+
-//'-(input.offsetTop='+sel.previousSibling.offsetTop+
-//'+input.offsetHeight='+sel.previousSibling.offsetHeight+
-//'+sel.offsetHeight='+sel.offsetHeight+')');
-    sel.parentNode.scrollTop = 
-      (sel.previousSibling.offsetTop-offset + sel.previousSibling.offsetHeight+sel.offsetHeight)
-      - sel.parentNode.clientHeight;
+//debug('div.clientHeight='+results.parentNode.clientHeight+
+//'-(input.offsetTop='+results.previousSibling.offsetTop+
+//'+input.offsetHeight='+results.previousSibling.offsetHeight+
+//'+results.offsetHeight='+results.offsetHeight+')');
+    results.parentNode.scrollTop = 
+      (results.previousSibling.offsetTop-offset + results.previousSibling.offsetHeight+results.offsetHeight)
+      - results.parentNode.clientHeight;
 */
-    sel.scrollIntoView(false);
-  } else {
-    let sel=document.getElementById('results');
-    if (sel) sel.style.display='none';
+    results.scrollIntoView(false);
+  } else {  //list too long
+    let results=document.getElementById('results');
+    if (results) results.style.display='none';
   }
 }
 
@@ -750,9 +756,9 @@ function selectitem(ev) {
           || ev.type == 'click') {
 		ev.stopPropagation();
     ev.preventDefault();
-    let sel=document.getElementById('results');
-    let input=sel.previousSibling.firstChild.nextSibling;
-    sel.parentNode.removeChild(sel);
+    let results=document.getElementById('results');
+    let input=results.previousSibling.firstChild.nextSibling;
+    results.parentNode.removeChild(results);
 		let data=ev.target.value.split('|');
     input.name=data.shift();	//list id or ''
     input.value=data.join('|');
@@ -764,8 +770,8 @@ function selectitem(ev) {
 }
 
 function drop(ev) {
-  let sel=document.getElementById('results');
-  if (sel) sel.style.display='none';
+  let results=document.getElementById('results');
+  if (results) results.style.display='none';
   let address = ev.dataTransfer.getData("text");
   debug('dropped '+address);
   if (!ev.target.value) //else its a replace
@@ -792,12 +798,13 @@ function newInput(elem) {
       ni.className='empty';
       ni.addEventListener('keydown', okAndInput);
       ni.addEventListener('drop', drop);
-      ni.addEventListener('input', search);
+      ni.addEventListener('input', (ev)=>{  clearTimeout(inputTimer); inputTimer=setTimeout(()=>{search(ev);}, 10) } );  //catch too quick input
     addr.parentNode.appendChild(na);
     ni.focus();
   }
   //document.getElementsByTagName('body')[0].scrollIntoView(false);
   document.getElementsByTagName('html')[0].scrollIntoView(false);
+  return na;
 }
 
 let hidden='';
@@ -844,25 +851,104 @@ async function bodykey(ev) {
 		}
 	}
 }
+function setDefaultAddresses() {
+debug('set default addresses');
+  let defaults=[];
+  let addr=document.getElementById("address");
+  while (addr) {
+    if (addr.id=='results') { addr=addr.nextSibling; continue; }  //skip search results box
+    let to=addr.firstChild;
+    let email=to.nextSibling;
+debug('setDefault: To:'+to.value+' Val:'+email.value+' Name:'+email.name);
+    if (email.value)
+      defaults.push({to: to.value, email: email.value, list: email.name});
+    addr=addr.nextSibling;
+  }
+  defaultsName=document.getElementById('defName').value;
+  if (defaultsName=='') defaultsName='*';
+debug('set default addresses for set '+defaultsName);
+  if (defaults.length || defaultsName=='*')
+    prefs.defaults[defaultsName]=defaults;
+  else
+    delete prefs.defaults[defaultsName];
+  builddatalist();
+  messenger.storage.local.set(prefs);
+}
+function restoreDefaultAddresses(defaultsName) {
+  if (typeof defaultsName!=='string')
+    defaultsName=document.getElementById('defName').value;
+  if (defaultsName=='') defaultsName='*';
+debug('restore defaults from set "'+defaultsName+'"');
+  let addr=document.getElementById("address");
+  while (addr.nextSibling) addr.nextSibling.remove();
+  let defaults=prefs?.defaults?.[defaultsName];
+  // every non existing defaults set clears the list of addresses
+  if (!defaults?.length) defaults=[{to: 'TO', email: '', list: ''}];
+debug('restored addresses: '+JSON.stringify(defaults));
+  for (let def of defaults) {
+    let to=addr.firstChild;
+    to.value=def.to;
+    let email=to.nextSibling;
+    email.value=def.email;
+    email.name=def.list;
+    validate(email);
+    if (def.email) addr=newInput(email);
+  }
+}
+function builddatalist() {
+  let dl=document.getElementById('defNames');
+  while (dl.hasChildNodes()) dl.lastChild.remove();
+  let opt=document.createElement('option');
+  opt.text='*';
+  dl.appendChild(opt);
+  for (let name in prefs?.defaults) {
+//    if (!prefs.defaults.hasOwnProperty(name)) continue;
+//debug('add '+name+' to datalist');
+    if (name=='*' || name=='') continue;
+    let opt=document.createElement('option');
+		opt.text=name;
+    dl.appendChild(opt);
+  }
+}
 
 function toggledebug(ev) {
 	prefs.debug=ev.target.checked;
-console.log('SMR: debug now '+(prefs.debug?'on':'off'));
+debug('debug now '+(prefs.debug?'on':'off'));
   messenger.storage.local.set(prefs);
 }
 function togglecloseonsuccess(ev) {
 	prefs.closeonsuccess=ev.target.checked;
-console.log('SMR: closeonsuccess now '+(prefs.closeonsuccess?'on':'off'));
+debug('closeonsuccess now '+(prefs.closeonsuccess?'on':'off'));
   messenger.storage.local.set(prefs);
 }
 function changedelay(ev) {
 	prefs.delay=ev.target.value;
-console.log('SMR: delay now '+prefs.delay);
+debug('delay now '+prefs.delay);
   messenger.storage.local.set(prefs);
+}
+function tooltip(ev) {
+  let title=ev.target.title;
+  let tt=document.getElementById('tooltip');
+  tt.textContent=title;
+  tt.style.display='block';
+  let pos = ev.target.getBoundingClientRect();
+  if (ev.target.id=='ab') {
+    tt.style.right = (document.documentElement.clientWidth-pos.right)+"px";
+    tt.style.left = 'unset';
+	} else {
+    tt.style.left = (pos.left+window.scrollX) + "px";
+    tt.style.right = 'unset';
+  }
+	tt.style.top 	= (pos.bottom+window.scrollY) + "px";
+	ev.target.addEventListener('mouseleave',  function ml() {
+    this.removeEventListener('mouseleave', ml);
+    tt.style.display='none';
+  });
+  
 }
 
 async function removeWin() {
-	let win=await messenger.windows.getCurrent();
+	let win = await messenger.windows.getCurrent();
 	let wInfo=await messenger.windows.get(win.id);
 	prefs.top=wInfo.top;
 	prefs.left=wInfo.left;

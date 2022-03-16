@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "Befejezés"
+    },
+    "default": {
+        "message": "Mentés másként"
+    },
+    "restore": {
+        "message": "Visszaállítás"
+    },
+    "list": {
+        "message": "Felsorolás"
+    },
+    "defaulttitle": {
+        "message": "Legyen ez az alapértelmezett"
+    },
+    "restoretitle": {
+        "message": "Alapértelmezett készlet visszaállítása"
+    },
+    "openab": {
+        "message": "Címjegyzék megnyitása"
     }
 }

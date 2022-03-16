@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "Končano"
+    },
+    "default": {
+        "message": "Shrani kot"
+    },
+    "restore": {
+        "message": "Obnovi"
+    },
+    "list": {
+        "message": "seznama"
+    },
+    "defaulttitle": {
+        "message": "Privzeti račun"
+    },
+    "restoretitle": {
+        "message": "Obnovi privzeti nabor"
+    },
+    "openab": {
+        "message": "Odpri imenik"
     }
 }

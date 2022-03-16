@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "Готово"
+    },
+    "default": {
+        "message": "Запазване като"
+    },
+    "restore": {
+        "message": "Възстановяване"
+    },
+    "list": {
+        "message": "Списък"
+    },
+    "defaulttitle": {
+        "message": "По подразбиране"
+    },
+    "restoretitle": {
+        "message": "Стандартни настройки"
+    },
+    "openab": {
+        "message": "Отваряне на адресник"
     }
 }

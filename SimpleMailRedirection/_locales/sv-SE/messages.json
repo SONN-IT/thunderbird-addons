@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "Klar"
+    },
+    "default": {
+        "message": "Spara som"
+    },
+    "restore": {
+        "message": "Återställ"
+    },
+    "list": {
+        "message": "lista"
+    },
+    "defaulttitle": {
+        "message": "Gör till standardkonto"
+    },
+    "restoretitle": {
+        "message": "Återställ standardvärden"
+    },
+    "openab": {
+        "message": "Öppna adressboken"
     }
 }

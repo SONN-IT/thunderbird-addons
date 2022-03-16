@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "Opret konto"
+    },
+    "default": {
+        "message": "Gem som"
+    },
+    "restore": {
+        "message": "Gentag"
+    },
+    "list": {
+        "message": "Liste"
+    },
+    "defaulttitle": {
+        "message": "Vælg som standard"
+    },
+    "restoretitle": {
+        "message": "Gendan standardsæt"
+    },
+    "openab": {
+        "message": "Åbn adressebog"
     }
 }

@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "Fet"
+    },
+    "default": {
+        "message": "Anomena i desa"
+    },
+    "restore": {
+        "message": "Refés"
+    },
+    "list": {
+        "message": "Llista"
+    },
+    "defaulttitle": {
+        "message": "Defineix per defecte"
+    },
+    "restoretitle": {
+        "message": "Configuració per defecte"
+    },
+    "openab": {
+        "message": "Obre la llibreta d'adreces"
     }
 }

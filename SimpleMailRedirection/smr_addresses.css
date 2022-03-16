@@ -170,3 +170,14 @@ div.pb {
 div.pb.hide {
   display: none;
 }
+
+.defName {
+  background: url("chrome://global/skin/icons/arrow-down-12.svg") no-repeat right center;
+}
+.tooltip {
+  display: none;
+  position: absolute;
+  background-color: #f0f0f0;
+  border: 1px solid silver;
+  padding: 2px;
+}

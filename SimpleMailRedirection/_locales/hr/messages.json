@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "Gotovo"
+    },
+    "default": {
+        "message": "Spremi kao"
+    },
+    "restore": {
+        "message": "Ponovi"
+    },
+    "list": {
+        "message": "Popis"
+    },
+    "defaulttitle": {
+        "message": "Postavi kao zadani"
+    },
+    "restoretitle": {
+        "message": "Vrati zadani set"
+    },
+    "openab": {
+        "message": "Otvori adresar"
     }
 }

@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "Fertig"
+    },
+    "default": {
+        "message": "Speichern als"
+    },
+    "restore": {
+        "message": "Wiederherstellen"
+    },
+    "list": {
+        "message": "Liste"
+    },
+    "defaulttitle": {
+        "message": "Als Standard festlegen"
+    },
+    "restoretitle": {
+        "message": "Standard wiederherstellen"
+    },
+    "openab": {
+        "message": "Adressbuch öffnen"
     }
 }

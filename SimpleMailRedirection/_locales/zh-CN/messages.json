@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "完成"
+    },
+    "default": {
+        "message": "另存为"
+    },
+    "restore": {
+        "message": "恢复"
+    },
+    "list": {
+        "message": "列表"
+    },
+    "defaulttitle": {
+        "message": "设置为默认账户"
+    },
+    "restoretitle": {
+        "message": "恢复默认设置"
+    },
+    "openab": {
+        "message": "打开通讯录"
     }
 }

@@ -49,5 +49,23 @@
     },
     "done": {
         "message": "Hotovo"
+    },
+    "default": {
+        "message": "Uložit jako"
+    },
+    "restore": {
+        "message": "Obnovit"
+    },
+    "list": {
+        "message": "Seznam"
+    },
+    "defaulttitle": {
+        "message": "Nastavit jako výchozí"
+    },
+    "restoretitle": {
+        "message": "Obnovit výchozí sadu"
+    },
+    "openab": {
+        "message": "Otevřít kontakty"
     }
 }
