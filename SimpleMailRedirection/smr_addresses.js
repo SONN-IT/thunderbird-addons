@@ -56,7 +56,7 @@ function validate(elem) {
   } else {
     document.getElementById('addressOK').disabled=true;
     // if (i) document.getElementById('default').disabled=true;
-	// 	allValid=false;
+    allValid=false;
   }
 }
 
