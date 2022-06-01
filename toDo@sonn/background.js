@@ -32,7 +32,19 @@ async function main() {
                     console.log("please setup pref extensions.todo.baseurl e.g. https://localhost");
                     return
                 }
-                browser.windows.openDefaultBrowser(baseUrl + "/" + encodeURIComponent(imapUid));
+
+                if(imapUid) {
+                    // let query = "?uid=" + imapUid + ";subject=" + encodeURIComponent(copiedMessage.subject);
+                    let query = "=?uid" + imapUid +
+                                (copiedMessage.subject ? ";subject=" + encodeURIComponent(copiedMessage.subject) : "");
+                    browser.windows.openDefaultBrowser(baseUrl + "/" + query);
+                } else {
+                    browser.notifications.create({
+                        "type": "basic",
+                        "title": "Thunderbird - ToDo",
+                        "message": "Fehler bei der Todo Erstellung"
+                    });
+                }
             }
             browser.messages.onCopied.removeListener(copiedMessageListener);
         });
