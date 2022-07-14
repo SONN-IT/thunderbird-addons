@@ -1,0 +1,51 @@
+{
+    "name": "Zim Search",
+    "description": "In Zim suchen",
+    "version": "1.0",
+    "applications": {
+      "gecko": {
+        "id": "zimSearch@sonn.at",
+        "strict_min_version": "78.0"
+      }
+    },
+    "permissions": [
+      "messagesRead",
+      "notifications",
+      "menus"
+    ],
+    "background": {
+      "scripts": [
+        "background.js"
+      ]
+    },
+    "message_display_action": {
+      "default_title": "Akt Notiz in Zim öffnen",
+      "default_icon": "logo.svg",
+      "default_label": "Zim öffnen"
+    },
+    "experiment_apis": {
+      "OpenZimApi": {
+        "schema": "api/OpenZimApi.json",
+        "parent": {
+          "scopes": ["addon_parent"],
+          "paths" : [["OpenZim"]],
+          "script" : "api/OpenZimApi.js"
+        }
+      }
+    },
+    "commands": {
+      "Event-SONN_openFile": {
+        "suggested_key": {
+          "default": "Ctrl+Alt+Z"
+        },
+        "description": "Zim öffnen"
+      }
+    },
+    "manifest_version": 2,
+    "icons": {
+      "16": "logo.svg",
+      "32": "logo.svg",
+      "48": "logo.svg",
+      "96": "logo.svg"
+  }
+}

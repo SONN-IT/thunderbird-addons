@@ -1,0 +1,19 @@
+[
+    {
+      "namespace": "OpenZim",
+      "description": "Open Zim",
+      "functions": [
+        {
+          "name": "openExternal",
+          "type": "function",
+          "description": "Open the url with the desktop's default handler",
+          "async": true,
+          "parameters": [{
+              "name": "url",
+              "type": "string",
+              "description": "The server's id"
+          }]
+        }
+      ]
+    }
+]
