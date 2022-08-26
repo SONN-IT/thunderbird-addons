@@ -5,9 +5,14 @@ var { quicktextUtils } = ChromeUtils.import("chrome://quicktext/content/modules/
 var { gQuicktext } = ChromeUtils.import("chrome://quicktext/content/modules/wzQuicktext.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-try {
-  var { cardbookRepository } = ChromeUtils.import("chrome://cardbook/content/cardbookRepository.js");
-} catch(e) {}
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+XPCOMUtils.defineLazyModuleGetters(this, {
+  newUID: "resource:///modules/AddrBookUtils.jsm",
+  AddrBookCard: "resource:///modules/AddrBookCard.jsm",
+  BANISHED_PROPERTIES: "resource:///modules/VCardUtils.jsm",
+  VCardProperties: "resource:///modules/VCardUtils.jsm",
+  VCardUtils: "resource:///modules/VCardUtils.jsm",
+});
 
 const kDebug          = true;
 const persistentTags  = ['COUNTER', 'ORGATT', 'ORGHEADER', 'VERSION'];
@@ -307,9 +312,9 @@ wzQuicktextVar.prototype = {
     return this.process_text(aVariables);
   }
 ,
-  get_script: function(aVariables)
+  get_script: async function(aVariables)
   {
-    return this.process_script(aVariables);
+    return await this.process_script(aVariables);
   }
 ,
   get_att: function(aVariables)
@@ -555,7 +560,7 @@ wzQuicktextVar.prototype = {
     return "";
   }
 ,
-  process_script: function(aVariables)
+  process_script: async function(aVariables)
   {
     if (aVariables.length == 0)
       return "";
@@ -584,7 +589,7 @@ wzQuicktextVar.prototype = {
           s.mQuicktext = this;
           s.mVariables = aVariables;
           s.mWindow = this.mWindow;
-          returnValue = Components.utils.evalInSandbox("scriptObject = {}; scriptObject.mQuicktext = mQuicktext; scriptObject.mVariables = mVariables; scriptObject.mWindow = mWindow; scriptObject.run = function() {\n" + script.script +"\nreturn ''; }; scriptObject.run();", s);
+          returnValue = await Components.utils.evalInSandbox("scriptObject = {}; scriptObject.mQuicktext = mQuicktext; scriptObject.mVariables = mVariables; scriptObject.mWindow = mWindow; scriptObject.run = async function() {\n" + script.script +"\n; return ''; }; scriptObject.run();", s);
         } catch (e) {
           if (this.mWindow)
           {
@@ -756,10 +761,27 @@ wzQuicktextVar.prototype = {
     return this.mData['CLIPBOARD'].data;
   }
 ,
-  getcarddata_from: function(aData, aIdentity)
+/**
+ * Gets the VCardProperties of the given card either directly or by reconstructing
+ * from a set of flat standard properties.
+ *
+ * @param {nsIAbCard/AddrBookCard} card
+ * @returns {VCardProperties}
+ */
+ vCardPropertiesFromCard: function (card) {
+  if (card.supportsVCard) {
+    return card.vCardProperties;
+  }
+  return VCardProperties.fromPropertyMap(
+    new Map(Array.from(card.properties, p => [p.name, p.value]))
+  );
+}
+,
+getcarddata_from: function(aData, aIdentity)
   {
     let passStandardCheck = false;
     try {
+      let cardbookRepository = ChromeUtils.import("chrome://cardbook/content/cardbookRepository.js").cardbookRepository;
       let card = cardbookRepository.cardbookUtils.getCardFromEmail(aIdentity.email.toLowerCase());
       if (card)
       {
@@ -791,10 +813,20 @@ wzQuicktextVar.prototype = {
       }
       if (card != null)
       {
+        // Get directly stored props first.
         var props = this.getPropertiesFromCard(card);
-        for (var p in props)
+        for (var p in props) {
           this.mData['FROM'].data[p] = props[p];
-
+        }
+        
+        // Get the vCard props.
+        let vCardProperties = this.vCardPropertiesFromCard(card);
+        for (let [name, value] of vCardProperties.toPropertyMap()) {
+          // For backward compatibility, use lowercase props.
+          let lowerCaseName = name.toLowerCase();
+          this.mData['FROM'].data[lowerCaseName] = value;
+        }
+        
         aData['FROM'].data['fullname'] = TrimString(aData['FROM'].data['firstname'] +" "+ aData['FROM'].data['lastname']);
       }
     }
@@ -827,6 +859,7 @@ wzQuicktextVar.prototype = {
   {
     let passStandardCheck = false;
     try {
+      let cardbookRepository = ChromeUtils.import("chrome://cardbook/content/cardbookRepository.js").cardbookRepository;
       let card = cardbookRepository.cardbookUtils.getCardFromEmail(aData['TO'].data['email'][aIndex]);
       if (card)
       {
@@ -860,14 +893,32 @@ wzQuicktextVar.prototype = {
       var card = this.getCardForEmail(aData['TO'].data['email'][aIndex]);
       if (card != null)
       {
+
+        // Get directly stored props first.
         var props = this.getPropertiesFromCard(card);
         for (var p in props)
         {
-          if (typeof aData['TO'].data[p] == 'undefined')
+          if (typeof aData['TO'].data[p] == 'undefined') {
             aData['TO'].data[p] = []
-          if (props[p] != "" || typeof aData['TO'].data[p][aIndex] == 'undefined' || aData['TO'].data[p][aIndex] == "")
+          }
+          if (props[p] != "" || typeof aData['TO'].data[p][aIndex] == 'undefined' || aData['TO'].data[p][aIndex] == "") {
             aData['TO'].data[p][aIndex] = TrimString(props[p]);
+          }
         }
+        
+        // Get the vCard props.
+        let vCardProperties = this.vCardPropertiesFromCard(card);
+        for (let [name, value] of vCardProperties.toPropertyMap()) {
+          // For backward compatibility, use lowercase props.
+          let lowerCaseName = name.toLowerCase();
+          if (typeof aData['TO'].data[lowerCaseName] == 'undefined') {
+            aData['TO'].data[lowerCaseName] = []
+          }
+          if (value != "" || typeof aData['TO'].data[lowerCaseName][aIndex] == 'undefined' || aData['TO'].data[lowerCaseName][aIndex] == "") {
+            aData['TO'].data[lowerCaseName][aIndex] = TrimString(value);
+          }
+        }
+
       }
     }
     return aData;
