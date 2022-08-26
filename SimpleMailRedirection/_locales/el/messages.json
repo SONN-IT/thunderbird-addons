@@ -67,5 +67,11 @@
     },
     "openab": {
         "message": "Άνοιγμα βιβλίου διευθύνσεων"
+    },
+    "filter": {
+        "message": "Redirect To:"
+    },
+    "needvalidaddress": {
+        "message": "Please enter a valid e-mail address"
     }
 }

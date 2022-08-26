@@ -1,5 +1,5 @@
 //debug("background started");
-let prefs={};
+let prefs={debug: false};
 var curTabId;
 var curWinId;
 var screen;
@@ -97,7 +97,7 @@ debug('got message id='+mh.id+' '+mh.subject+' ('+mh.author+')');
       let win=await messenger.windows.create({
         height: height,
         width: 800,
-		allowScriptsToClose: true,
+	allowScriptsToClose: true,
         url: "smr_addresses.html",
         type: "popup",
           //'normal' opens  new mail:3pane window with smr as additional tab
@@ -141,6 +141,7 @@ debug('requestData, send messages, prefs now '+JSON.stringify(prefs));
 }
 
 async function start() {
+debug('background started');
   prefs=await messenger.storage.local.get({debug: false});
     //dont use storage.local.get() (without arg), see https://thunderbird.topicbox.com/groups/addons/T46e96308f41c0de1
   let resent=messenger.i18n.getMessage('resent');
@@ -189,8 +190,7 @@ debug('tab created tab='+curTabId+' window='+curWinId+' status='+tab.status+' ac
 }
 //messenger.menus.onShown.addListener(()=>{debug('menu shown');});
 
-start();
-
+/*
 let debugcache='';
 function debug(txt, force) {
 	if (force || prefs) {
@@ -202,3 +202,15 @@ function debug(txt, force) {
 		debugcache+='SMR: '+txt+'\n';
 	}
 }
+*/
+function debug(txt, e) {
+	ex=typeof e!=='undefined';
+	if (!ex) e = new Error();
+	let stack = e.stack.toString().split(/\r\n|\n/);
+	let ln=stack[ex?0:1].replace(/moz-extension:\/\/.*\/(.*:\d+):\d+/, '$1');	//getExternalFilename@file:///D:/sourcen/Mozilla/thunderbird/Extensions/AddressbooksSync_wee/abs_utils.js:1289:6
+	if (!ln) ln='?';
+	messenger.smr.debug(txt, ln);
+}
+
+start();
+

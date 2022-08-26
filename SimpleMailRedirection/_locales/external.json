@@ -129,5 +129,13 @@
       "file": "messenger.dtd",
       "key": "openAddressBookDock.label",
       "_de": "Adressbuch öffnen"
-  }
+  },
+  "filter": {
+      "default": "Redirect To:",
+      "de": "Umleiten An:"
+   },
+  "needvalidaddress": {
+      "default": "Please enter a valid e-mail address",
+      "de": "Bitte eine gültige E-Mail Adresse angeben"
+ }
 }

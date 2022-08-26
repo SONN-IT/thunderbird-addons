@@ -67,5 +67,11 @@
     },
     "openab": {
         "message": "Отваряне на адресник"
+    },
+    "filter": {
+        "message": "Redirect To:"
+    },
+    "needvalidaddress": {
+        "message": "Please enter a valid e-mail address"
     }
 }

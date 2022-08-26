@@ -67,5 +67,11 @@
     },
     "openab": {
         "message": "開啟通訊錄"
+    },
+    "filter": {
+        "message": "Redirect To:"
+    },
+    "needvalidaddress": {
+        "message": "Please enter a valid e-mail address"
     }
 }

@@ -67,5 +67,11 @@
     },
     "openab": {
         "message": "Adressbuch öffnen"
+    },
+    "filter": {
+        "message": "Umleiten An:"
+    },
+    "needvalidaddress": {
+        "message": "Bitte eine gültige E-Mail Adresse angeben"
     }
 }

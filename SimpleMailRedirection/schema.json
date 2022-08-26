@@ -98,6 +98,24 @@
             "description": "search string"
           }
 				]
+      },
+      {
+        "name": "debug",
+        "description": "debug",
+        "type": "function",
+        "async": true,
+        "parameters": [
+          {
+            "name": "txt",
+            "type": "string",
+            "description": "the debug text"
+          },
+          {
+            "name": "ln",
+            "type": "string",
+            "description": "line number of debug"
+          }
+				]
       }
     ],
     "events": [

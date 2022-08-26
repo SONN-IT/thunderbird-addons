@@ -55,14 +55,29 @@
       <p style="font-weight: bold">__MSG_selected__</p>
       <div style="display:flex; margin-top:1ex; overflow: auto; max-height: 30em;">
       <table id="mails" style="width: max-content; border-collapse: collapse;"><thead>
-        <tr><th></th><th>__MSG_subject__</th><th class="pb"></th><th>__MSG_from__</th><th>__MSG_date__</th></tr>
+        <tr><th></th><th>__MSG_subject__</th><th></th><th>__MSG_from__</th><th>__MSG_date__</th></tr>
       </thead><tbody></tbody></table>
       </div>
     </div>
 
-<div>
-    <p style="font-weight: bold">__MSG_sendto__</p>
-    <div style="margin-top:1ex; overflow-y: auto;">
+    <div>
+      <img id="ab" src="chrome://messenger/skin/icons/address.svg" 
+            title="__MSG_openab__" style="float: right;"/>
+
+      <p><span style="font-weight: bold" >__MSG_sendto__</span>
+ <!--        
+        <input type="button" id="default" value="__MSG_default__" title="__MSG_defaulttitle__"
+          style="margin-left: 5em;" />
+        label for="defName">__MSG_List__:</label
+        <input type="text" id="defName"
+            list="defNames" size="5" class="defName" placeholder="*"autocomplete="off" />
+        <datalist id="defNames">
+        </datalist>
+        <input type="button" id="restore" value="__MSG_restore__" title="__MSG_restoretitle__" />
+        <div id="tooltip" class="tooltip" ></div>
+-->
+      </p>
+      <div style="margin-top:1ex; _height: 200px; overflow-y: auto;">
         <!-- no whitespace between div, select and input AND /div's -->
         <div id="address" class="address"><select>
             <option value="TO">__MSG_to__:</option>

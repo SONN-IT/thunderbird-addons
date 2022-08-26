@@ -1,4 +1,5 @@
 const { ExtensionCommon } = ChromeUtils.import("resource://gre/modules/ExtensionCommon.jsm");
+const { ExtensionSupport } = ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { AddonManager } = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
@@ -14,52 +15,60 @@ var chromeHandle=null;	//for cardbook
 var cardbookRepository;
 
 const EXTENSION_ID = 'simplemailredirection@ggbs.de';
+var extension;
 
 const MAX_HEADER_LENGTH = 16384;
 
-var prefs={'debug': true};
+var prefs;
+var initcalled=false;
 var windows=new Object;
 var appVersion;
-var filterScriptLoaded=false;
+var gContext=null;
+var debugcache=new Map();
 
 //debug('entered');
 var smr = class extends ExtensionCommon.ExtensionAPI {
   onStartup() { 
 //pref.debug not set yet!
-//debug('onStartup');
+debug('onStartup');
   }
 
   onShutdown(isAppShutdown) {
 debug('onShutdown isAppShutdown='+isAppShutdown);
-      if (isAppShutdown) return;
+    if (isAppShutdown) return;
       // Looks like we got uninstalled. Maybe a new version will be installed
       // now. Due to new versions not taking effect
       // (https://bugzilla.mozilla.org/show_bug.cgi?id=1634348)
       // we invalidate the startup cache. That's the same effect as starting
       // with -purgecaches (or deleting the startupCache directory from the
       // profile).
-//TODO: remove stylesheet
-      Services.obs.notifyObservers(null, "startupcache-invalidate");
+    Services.obs.notifyObservers(null, "startupcache-invalidate");
   }
   getAPI(context) {
-//debug('getApi entered');	//more than once!
-
-    context.callOnClose(this);
-    if (!filterScriptLoaded) {
+debug('getApi entered');	//more than once! (on App start and when redirect window opens
+    if (!gContext) {
+      gContext=context;
+      extension=context.extension;
+      context.callOnClose(this);
       Services.scriptloader.loadSubScript(context.extension.rootURI.resolve("./smr_filter.js"));
-      filterScriptLoaded=true;
+//						registerChromeUrl(context, [ ["content", "cardbook", "chrome/content/"] ]);
+//      Services.scriptloader.loadSubScript(chrome://smr_filter.js"));
+      redirectFilterWrapper.onStartup();  //filterStart();
+      this.getAddon();
     }
-		this.getAddon();
 
     return {
       smr: {
         init: async function(options) {
           prefs=options;
 debug('init debug='+prefs.debug);
+          if (initcalled) return; //only change in prefs
 					let timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
-					timer.initWithCallback(()=>{stylesheets(context);}, 1000, Ci.nsITimer.TYPE_ONE_SHOT);
-let m3p = Services.wm.getMostRecentWindow("mail:3pane");
+debug('  stylesheet timer='+timer+' context='+context);
+					timer.initWithCallback(()=>{stylesheets(context, true);}, 1000, Ci.nsITimer.TYPE_ONE_SHOT);
+          let m3p = Services.wm.getMostRecentWindow("mail:3pane");
 debug('screen='+m3p.screen.width+'x'+m3p.screen.height);
+          initcalled=true;
 					return m3p.screen;
 				},
         redirect: async function(mhs, rts, params, windowId, options) {
@@ -112,6 +121,8 @@ debug('already sending, abort')
           }
           msg.state='abort';  //mark for abort after filecopy
         },
+
+//cb_* functions are only used, if cardbook does not support messaging
         cb_exists: function() {
 debug('cb: exists?');
 					// try to load cardbook, must be delayed until cardbook fully loaded
@@ -145,6 +156,7 @@ debug('cb: exists: cardbook installed, also use TB addressbook');
 						return 2;																						// cardbook and TB's addressbook
 					}
         },
+//cb_* functions are only used, if cardbook does not support messaging
         cb_open: async function() {
 debug('cb: open');
 					if ((typeof cardbookRepository)=='undefined') return;
@@ -157,6 +169,7 @@ debug('cb: open');
 						}
 					}
         },
+//cb_* functions are only used, if cardbook does not support messaging
 				cb_list: async function(list) {
 					if ((typeof cardbookRepository)=='undefined') return;
 					let lists=[];
@@ -189,6 +202,7 @@ debug('cb_list found: '+card.fn);
 					}
 					return lists;
 				},
+//cb_* functions are only used, if cardbook does not support messaging
         cb_search: async function(search) {
 debug('cb: search');
 					if ((typeof cardbookRepository)=='undefined') return;
@@ -261,8 +275,13 @@ debug('cb: searchArray: '+c+' entries');
 debug('cb: search result: '+addresses.length);
 //debug('cb: search result: '+JSON.stringify(addresses));
 						return addresses;
-					} catch(e) {console.debug(e)}
+					} catch(e) {console.debug('SMR: '+e)}
         },
+        debug: async function(txt, ln) {
+					debug(txt, ln);
+				},
+
+///////////
         onMailSent: new ExtensionCommon.EventManager({
           context,
           name: "smr.onMailSent",
@@ -296,6 +315,8 @@ debug('    already sending, abort')
     // This function is called if the extension is disabled or removed, or Thunderbird closes.
     // Also called if our html window closes
 debug('close');
+    redirectFilterWrapper.onShutdown();  //filterStop();
+    stylesheets(gContext, false);
   }
   async getAddon() {
     let addOn=await AddonManager.getAddonByID(EXTENSION_ID);
@@ -502,11 +523,14 @@ if (MsgUtils!=null) debug('MsgSend returned bad status: '+MsgUtils.getErrorStrin
       let msgService = messenger.messageServiceFromURI(this.msgUri);
       let msgHdr = msgService.messageURIToMsgHdr(this.msgUri);
 
-			let msg=appVersion<'85'
-				? Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray)
-				: new Array();
-      if (appVersion<'85') msg.appendElement(msgHdr, false);
-			else msg.push(msgHdr);
+			let msg;
+      if (appVersion<85) {
+				msg=Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray)
+        msg.appendElement(msgHdr, false);
+			} else {
+        msg=new Array();
+        msg.push(msgHdr);
+      }
       try {
         msgHdr.folder.addKeywordsToMessages(msg, "redirected");
       } catch(e) {
@@ -620,42 +644,28 @@ debug('delete windowId '+windowId);
 //TEST
 debug('file copied to tempfile '+tmpFile.path);
 if (windowId/*!filter*/ && test) {
-console.log('SMR: TEST mode, no msgSend');  //even if no debug
-for (const [windowId, data] of Object.entries(windows)) {
-  for (const [msgId, mh] of Object.entries(data)) {
-    if (isNaN(msgId)) debug(`cache ${windowId} ${msgId} ${mh}`);
-    else debug(`cache msgId ${windowId} ${msgId} ${mh.id} ${mh.msgSend} ${mh.subject}`);
+  console.log('SMR: TEST mode, no msgSend');  //log even if no debug
+  for (const [windowId, data] of Object.entries(windows)) {
+    for (const [msgId, mh] of Object.entries(data)) {
+      if (isNaN(msgId)) debug(`cache ${windowId} ${msgId} ${mh}`);
+      else debug(`cache msgId ${windowId} ${msgId} ${mh.id} ${mh.msgSend} ${mh.subject}`);
+    }
   }
-}
-windows[windowId][msgId].state='finished';
-let m3p=Services.wm.getMostRecentWindow("mail:3pane");
-m3p.setTimeout(()=>{
-  if (windows[windowId].fire)
-    windows[windowId].fire.async({msgid: msgId, type: 'finished', status: 1})
-  windows[windowId].msgCount--;
-  if (!windows[windowId].msgCount) {
-  debug('delete windowId '+windowId);
-    delete windows[windowId];
-  }
-}, 3000);
-return;
+  windows[windowId][msgId].state='finished';
+  let m3p=Services.wm.getMostRecentWindow("mail:3pane");
+  m3p.setTimeout(()=>{
+    if (windows[windowId].fire)
+      windows[windowId].fire.async({msgid: msgId, type: 'finished', status: 1})
+    windows[windowId].msgCount--;
+    if (!windows[windowId].msgCount) {
+    debug('delete windowId '+windowId);
+      delete windows[windowId];
+    }
+  }, 3000);
+  return;
 }
 //TEST End
 
-/*obsolete
-      let useAccountId=accountId;
-      //workaround web.de
-      //await messenger.storage.local.set({changeFrom: {account6: false}})
-      //await messenger.storage.local.set({useAccount: {account6: 'account3'}}) //send through davbs.de
-      if (prefs.useAccount && prefs.useAccount[accountId]) {
-        useAccountId=prefs.useAccount[accountId];
-      //TODO: useAccountId still valid?
-        let account=MailServices.accounts.getAccount(useAccountId);
-        identity = account.defaultIdentity;
-debug('resent with workaround Account '+useAccountId+' identity='+identity.fullName+' <'+identity.email+'> => sender='+msgCompFields.from);
-      } else {
-      }
-*/
 debug('account='+accountId+' identity='+identity.fullName+' <'+identity.email+'> => sender='+msgCompFields.from);
 
       // send a message
@@ -989,23 +999,58 @@ debug('resentDate: '+dateTime);
   return dateTime;
 }
 
-function stylesheets(context) {
+function stylesheets(context, load) {
   let styleSheetService = Components.classes["@mozilla.org/content/style-sheet-service;1"]
                                     .getService(Components.interfaces.nsIStyleSheetService);
   let uri = Services.io.newURI(context.extension.getURL("skin/simplemailredirection.css"), null, null);
-debug('stylesheet uri='+uri); //fire one time, but
-  styleSheetService.loadAndRegisterSheet(uri, styleSheetService.USER_SHEET);
-debug('stylesheet loaded');   //this fires two times???
+debug('stylesheet uri='+uri.spec);
+  if (load) {
+    styleSheetService.loadAndRegisterSheet(uri, styleSheetService.USER_SHEET);
+debug('stylesheet loaded');
+  } else {
+    styleSheetService.unregisterSheet(uri, styleSheetService.USER_SHEET);
+debug('stylesheet unloaded');
+  }
 }
 
-let debugcache='';
-function debug(txt, force) {
-	if (force || prefs) {
-		if (force || prefs.debug) {
-			if (debugcache) console.log(debugcache); debugcache='';
-			console.log('SMR: '+txt);
-		}
+function debug(txt, ln) {
+	//if from background or options via messenger.smr.debug: (string, string)
+	//else	(string, undefined) or (string, exception)
+	let ex;
+	if (typeof ln==='string') {
+		ex=txt.match('throws:');
 	} else {
-		debugcache+='SMR: '+txt+'\n';
+		ex=typeof ln!=='undefined';
+		let e;
+		if (ex) e=ln;
+		else e = new Error();
+		let stack = e.stack.toString().split(/\r\n|\n/);
+		ln=stack[ex?0:1].replace(/file:\/\/.*\/(.*:\d+):\d+/, '$1');	//getExternalFilename@file:///D:/sourcen/Mozilla/thunderbird/Extensions/AddressbooksSync_wee/abs_utils.js:1289:6
 	}
+	if (ex) {
+		console.error('SMR: '+ln+' '+txt);
+	}
+
+	if (!prefs) {
+		var d=new Date();
+		var s=d.toLocaleString();
+//		debugcache.set(debugcache.size+(ex?':fail':'')+'-'+s, '(cached) '+ln+' '+txt);
+		debugcache.set(debugcache.size+'-'+s, '(cached) '+ln+' '+txt);
+		return;
+	}
+	if (!prefs['debug']) {
+    debugcache=null;
+    return;
+  }
+
+	//if (inconsole) this.console.logStringMessage('AddressbooksSynchronizer: '+txt);
+	if (debugcache && debugcache.size) {
+console.log('SMR: debug: debugcache.size='+debugcache.size);
+		for (let [s, t] of debugcache) {
+			console.debug('SMR: '+t);
+		}
+		debugcache.clear();
+	}
+	if (!ex)
+		console.debug('SMR: '+ln+' '+txt);
 }

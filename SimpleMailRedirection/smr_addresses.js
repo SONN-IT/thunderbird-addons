@@ -337,7 +337,7 @@ debug('we already have a listener');
     email.addEventListener('drop', drop);
     email.addEventListener('input', (ev)=>{ clearTimeout(inputTimer); inputTimer=setTimeout(()=>{search(ev);}, 10) } );  //catch too quick input
     setTimeout(()=>{ email.focus();	debug('focus now '+document.activeElement.tagName); }, 500);  //does not work in TB88
-    //document.getElementById("ab").addEventListener('click', openAB);
+    document.getElementById("ab").addEventListener('click', openAB);
     document.getElementById("body").addEventListener('keydown', bodykey);
     document.getElementById("accountsel").addEventListener('change', accountchange);
     document.getElementById("changefrom").addEventListener('change', togglechangefrom);
@@ -348,6 +348,7 @@ debug('we already have a listener');
     //document.getElementById("default").addEventListener('mouseenter', tooltip);
     //document.getElementById("restore").addEventListener('click', restoreDefaultAddresses);
     //document.getElementById("restore").addEventListener('mouseenter', tooltip);
+    document.getElementById("ab").addEventListener('mouseenter', tooltip);
     document.getElementById("deleteAddresses").addEventListener('click', removeResentAddr);
     document.getElementById("extrasAblageButton").addEventListener('click', toggleExtrasAblage);
     // document.getElementById("defName").addEventListener('input', (event)=>{
@@ -412,29 +413,6 @@ There is a bug in Thunderbird which prevents this add-on from running.<br/>See B
     return;
   }
 
-/*
-	let defAcct=origAcctId;
-  let defIden=await messenger.accounts.getDefaultIdentity(defAcct);
-  if (defIden) defIden=defIden.id;
-  else {    //no default identity for account
-debug(defAcct+': no default identity');
-    let acct=await messenger.accounts.get(defAcct);
-    let idens=acct.identities;
-    if (idens.length) {
-debug(defAcct+': use first identity');
-      defIden=idens[0].id;  // use first identity
-    } else {  // no identities, get identity from default account
-debug(defAcct+': no identities');
-      defAcct=await messenger.accounts.getDefault();
-      if (!defAcct) // if no default account, use first account with identities
-        accounts.some(acct=>{ if (acct.identities.length) { defAcct=acct; return true;} });
-      defIden=defAcct.identities[0].id;  // use first (=default) identity
-      defAcct=defAcct.id;
-//debug('using '+defAcct+' '+defIden);
-    }
-  }
-debug('using '+defAcct+' '+defIden);
-*/
 	let defAcctId, defIdenId;
 	let pref=prefs.identities[origAcctId];
 //    disabled, we don't want that :)
@@ -548,12 +526,15 @@ debug('using '+defAcctId+' '+defIdenId);
   cardbook=0;
 	try {
 		let cbei=await messenger.management.get('cardbook@vigneau.philippe');
+    if (cbei.enabled) {
 debug('cardbook version '+cbei.version);	//70.9
-		let [v, major, minor]=cbei.version.match(/^(\d+)\.(\d+)/);
-		if (major<70 || major==70 && minor<=9)
-			have_cardbook=1;	//no api or buggy api
-		else
-			have_cardbook=2;	//api ok
+      let [v, major, minor]=cbei.version.match(/^(\d+)\.(\d+)/);
+      if (major<70 || major==70 && minor<=9)
+        have_cardbook=1;	//no api or buggy api
+      else
+        have_cardbook=2;	//api ok
+    }
+else debug('cardbook installed but disabled');
 	} catch(e) {
 debug('cardbook not installed');
 	}
@@ -635,7 +616,6 @@ debug('account now '+acct);
 		cf.checked=false;
 	}
 }
-
 function togglechangefrom(ev) {
 	prefs.changefrom[ev.target.value]=ev.target.checked;
 debug('changefrom for '+ev.target.value+' now '+(prefs.changefrom[ev.target.value]?'on':'off'));
@@ -649,6 +629,7 @@ async function search(ev) {
   let results=document.getElementById('results');
   validate(ev.target);
 	let sv=ev.target.value;
+//debug('search '+sv);
   if (sv.length<2) {
     if (results) results.style.display='none';
     return;
@@ -768,7 +749,6 @@ function selectitem(ev) {
     newInput(input);
   }
 }
-
 function drop(ev) {
   let results=document.getElementById('results');
   if (results) results.style.display='none';
@@ -780,7 +760,6 @@ function drop(ev) {
   validate(ev.target);
   ev.preventDefault();
 }
-
 function newInput(elem) {
 //debug('generate new input field');
   let addr=elem.parentNode; //flex container
@@ -915,6 +894,7 @@ function toggledebug(ev) {
 	prefs.debug=ev.target.checked;
 debug('debug now '+(prefs.debug?'on':'off'));
   messenger.storage.local.set(prefs);
+  messenger.smr.init(prefs);   //inform implementation.js
 }
 function togglecloseonsuccess(ev) {
 	prefs.closeonsuccess=ev.target.checked;
@@ -965,6 +945,7 @@ async function removeWin() {
 document.addEventListener('DOMContentLoaded', load, { once: true });
 // window close is recognized by unregister of onMailSent
 
+/*
 let debugcache='';
 function debug(txt, force) {
 	if (force || prefs) {
@@ -975,6 +956,15 @@ function debug(txt, force) {
 	} else {
 		debugcache+='SMR: '+txt+'\n';
 	}
+}
+*/
+function debug(txt, e) {
+	ex=typeof e!=='undefined';
+	if (!ex) e = new Error();
+	let stack = e.stack.toString().split(/\r\n|\n/);
+	let ln=stack[ex?0:1].replace(/moz-extension:\/\/.*\/(.*:\d+):\d+/, '$1');	//getExternalFilename@file:///D:/sourcen/Mozilla/thunderbird/Extensions/AddressbooksSync_wee/abs_utils.js:1289:6
+	if (!ln) ln='?';
+	messenger.smr.debug(txt, ln);
 }
 
 async function addResentFiles(subjects) {
