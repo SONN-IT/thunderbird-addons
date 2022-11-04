@@ -4,6 +4,16 @@ body {
 }
 
 /* accounts */
+#from {
+  display:flex;
+  margin-top:1ex;
+  overflow: auto;
+  height: 2.5em;
+}
+#from * {
+  vertical-align: middle;
+}
+
 option.acct {
   font-weight: bold;
 }
@@ -24,6 +34,14 @@ option.bt {
   margin-inline-end: 3px;
 	margin-left: 5px;
   vertical-align: middle;
+}
+#maxConn {
+  width: 3em;
+  height: 12px;
+  margin-inline-end: 3px;
+	margin-left: 5px;
+  vertical-align: middle;
+  padding: 5px;
 }
 
 /* selected mails table */
@@ -48,32 +66,44 @@ th {
 }
 
 /* leading icons in the table rows */
-.remove {
+#mails tr + td {
 	width: 16px;
-	background: url("chrome://global/skin/icons/delete.svg") center center / 16px 16px no-repeat;
-	background-color: lightgray;
+}
+.remove, .abort {
 	cursor: pointer;
 }
-.abort {
-	width: 16px;
-	background: url("chrome://global/skin/icons/searchfield-cancel.svg") center center / 16px 16px no-repeat;
-	background-color: lightgray;
-	cursor: pointer;
+
+.remove img {
+  content: url(skin/remove.svg);
 }
-.sending {
-	width: 16px;
-	background: url("chrome://global/skin/icons/update-icon.svg") center center / 16px 16px no-repeat;
-	background-color: lightgray;
+.abort img {
+  content: url(skin/abort.svg);
 }
-.ok {
-	width: 16px;
-	background: url("chrome://global/skin/icons/check.svg") center center / 16px 16px no-repeat;
+.sending img {
+  content: url(skin/sending.svg);
 }
-.failed {
-	width: 16px;
-	/*background: url("chrome://global/skin/icons/error.svg") center center / 16px 16px no-repeat;*/
-	background: url("chrome://global/skin/icons/warning.svg") center center / 16px 16px no-repeat;
-	background-color: black;
+.ok img {
+  content: url(skin/ok.svg);
+}
+.failed img {
+  content: url(skin/failed.svg);
+}
+@media (prefers-color-scheme: dark) {
+  .remove img {
+    content: url(skin/remove-dark.svg);
+  }
+  .abort img {
+    content: url(skin/abort-dark.svg);
+  }
+  .sending img {
+    content: url(skin/sending-dark.svg);
+  }
+  .ok img {
+    content: url(skin/ok-dark.svg);
+  }
+  .failed img {
+    content: url(skin/failed-dark.svg);
+  }
 }
 .pointer {
 	cursor: pointer;
@@ -150,34 +180,38 @@ progress {
 .pb {
 	padding: 0px;
 }
-div.pb span {
+.pb span {
 	position: absolute;
-	width: 100%;
-	text-align: center;
 	color: black;
 	font-size: 80%;
 	padding-top: 2px;
-  	margin-left: -66%;
+  margin-left: -66%;
 }
-div.pb span.textonly {
+.pb span.textonly {
   position: unset;
   margin-left: 0;
 }
-div.pb {
+.pb {
 	display: inline-block;
 	position: relative;
 }
-div.pb.hide {
+.hide {
   display: none;
+}
+.invis {
+  visibility: hidden;
 }
 
 .defName {
-  background: url("chrome://global/skin/icons/arrow-down-12.svg") no-repeat right center;
+  width: 8em;
+  /* background: url("chrome://global/skin/icons/arrow-down-12.svg") no-repeat right center; */
+  background: url("skin/arrow-down-12.svg") no-repeat right center;
+	background-color: var(--in-content-box-background);
 }
 .tooltip {
   display: none;
   position: absolute;
-  background-color: #f0f0f0;
+  background-color: var(--in-content-box-background);
   border: 1px solid silver;
   padding: 2px;
 }

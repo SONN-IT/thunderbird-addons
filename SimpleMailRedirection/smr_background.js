@@ -89,15 +89,11 @@ debug('got message id='+mh.id+' '+mh.subject+' ('+mh.author+')');
 			let size=pos.size;
 			if (!size) size=12;
 			let height=210+4*(size+10)+this.msgs.length*(size+8);
-			let platformInfo = await browser.runtime.getPlatformInfo();
-			if(platformInfo.os === "win") {
-				height = height+24;
-			}
 			//if (height<pos.height) height=pos.height;
       let win=await messenger.windows.create({
         height: height,
-        width: 800,
-	allowScriptsToClose: true,
+        width: pos.width?pos.width:800,
+        allowScriptsToClose: true,
         url: "smr_addresses.html",
         type: "popup",
           //'normal' opens  new mail:3pane window with smr as additional tab
@@ -149,8 +145,9 @@ debug('background started');
   messenger.menus.create({
     contexts : ["message_list"],
     id: "smr_redirect_mail",
-    onclick : redirect.getAddress.bind(redirect),
+    onclick: redirect.getAddress.bind(redirect),
     title: resent
+//    ,icons: {16: "skin/SimpleMailRedirection.svg"}  //not working on main menu item :-(
   });
 	// shown in context menu of all messages, but need to get current message as no messages selected
 	// returns a "pageUrl":"imap://mail.davbs.de:993/fetch%3EUID%3E.INBOX%3E10617"
@@ -159,8 +156,9 @@ debug('background started');
 		//documentUrlPatterns: ["*://*/*"],	//["imap-message://*/*"],
 		//viewTypes: ['popup'],
     id: "smr_redirect_msg",
-    onclick : redirect.getAddress.bind(redirect),
+    onclick: redirect.getAddress.bind(redirect),
     title: resent
+//    ,icons: {16: "skin/SimpleMailRedirection.svg"}  //not working on main menu item :-(
   });
 	messenger.messageDisplayAction.setTitle({title: resent});
 	messenger.messageDisplayAction.onClicked.addListener(redirect.getAddress.bind(redirect));
@@ -187,6 +185,7 @@ debug('tab created tab='+curTabId+' window='+curWinId+' status='+tab.status+' ac
 	messenger.browserAction.onClicked.addListener(redirect.getAddress.bind(redirect));
 
   screen=await messenger.smr.init(prefs);   //loads stylesheet etc.
+debug('screen='+screen);
 }
 //messenger.menus.onShown.addListener(()=>{debug('menu shown');});
 

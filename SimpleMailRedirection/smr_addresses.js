@@ -169,8 +169,10 @@ debug('msg: '+msg.subject)
       let pbs=document.createElement('span');
       pbs.id='pb_'+tr.id.substr(4);
       tr.firstChild.className='abort';
-      pbs.textContent='...';
       let pb=document.createElement('progress');
+      pb.max=100;
+      pb.value=0;
+      pb.classList.add('invis');
       pbd.appendChild(pb);
       pbd.appendChild(pbs);
       tdpb.appendChild(pbd);
@@ -249,18 +251,29 @@ debug('onMailSent fired: '+JSON.stringify(data));
     let size=(Number(data.size)/1000./1000.).toFixed(2);
     size=size+'MB';
     pbs.textContent=size;
+  } else if (data.type=='waiting') {
+    let pbs=document.getElementById('pb_'+data.msgid);
+    pbs.textContent='...';
+  } else if (data.type=='converting') {
+    let pbs=document.getElementById('pb_'+data.msgid);
+    //pbs.textContent='';
+    pbs.previousSibling.classList.remove('invis');  // the progressbar
   } else if (data.type=='started') {
     let pbs=document.getElementById('pb_'+data.msgid);
     let size=(Number(data.size)/1000./1000.).toFixed(2);
     size=size+'MB';
     pbs.textContent=size;
+    pbs.previousSibling.removeAttribute('value');  //start spinning
+    pbs.previousSibling.removeAttribute('max');  //start spinning
   } else if (data.type=='finished' || data.type=='aborted') {
     let msg=msgs.find(msg=>msg.id==data.msgid);
     msg.sending=false;
     msg.state=data.state;
     msg.allowResend=data.allowResend;
+    let pbs=document.getElementById('pb_'+data.msgid);
+    pbs.previousSibling.classList.add('hide');
+    pbs.textContent='';
     let tr=document.getElementById('msg_'+data.msgid);
-    tr.firstChild.nextSibling.nextSibling.firstChild.classList.add('hide');
     tr.firstChild.removeEventListener('click', removeMsg);
     if (data.state==0) {
       tr.style.color='green';
@@ -304,13 +317,14 @@ debug('no more messages, allowResend='+allowResend);
 }
 
 async function load() {
-    wid=(await messenger.windows.getCurrent()).id;
-    prefs=await messenger.storage.local.get({
+  wid=(await messenger.windows.getCurrent()).id;
+  prefs=await messenger.storage.local.get({
         debug: false,
         delay: 1,
         size: 0,
         identities: {},
         changefrom: {},
+        maxConn: {},
         copytosent: true,
         closeonsuccess: true,
 	    defaults: {},
@@ -330,64 +344,68 @@ debug('we already have a listener');
   }
   messenger.smr.onMailSent.addListener(listener, wid);
 
-    document.getElementById("addressCANCEL").addEventListener('click', cancel);
-    document.getElementById("addressOK").addEventListener('click', send);
-    let email=document.getElementById("email");
-    email.addEventListener('keydown', okAndInput);
-    email.addEventListener('drop', drop);
-    email.addEventListener('input', (ev)=>{ clearTimeout(inputTimer); inputTimer=setTimeout(()=>{search(ev);}, 10) } );  //catch too quick input
-    setTimeout(()=>{ email.focus();	debug('focus now '+document.activeElement.tagName); }, 500);  //does not work in TB88
-    document.getElementById("ab").addEventListener('click', openAB);
-    document.getElementById("body").addEventListener('keydown', bodykey);
-    document.getElementById("accountsel").addEventListener('change', accountchange);
-    document.getElementById("changefrom").addEventListener('change', togglechangefrom);
-    // document.getElementById("closeonsuccess").addEventListener('change', togglecloseonsuccess);
-    document.getElementById("delay").addEventListener('change', changedelay);
-    document.getElementById("debug").addEventListener('change', toggledebug);
-    //document.getElementById("default").addEventListener('click', setDefaultAddresses);
-    //document.getElementById("default").addEventListener('mouseenter', tooltip);
-    //document.getElementById("restore").addEventListener('click', restoreDefaultAddresses);
-    //document.getElementById("restore").addEventListener('mouseenter', tooltip);
-    document.getElementById("ab").addEventListener('mouseenter', tooltip);
-    document.getElementById("deleteAddresses").addEventListener('click', removeResentAddr);
-    document.getElementById("extrasAblageButton").addEventListener('click', toggleExtrasAblage);
-    // document.getElementById("defName").addEventListener('input', (event)=>{
+	document.getElementById("addressCANCEL").addEventListener('click', cancel);
+	document.getElementById("addressOK").addEventListener('click', send);
+	let email=document.getElementById("email");
+	email.addEventListener('keydown', okAndInput);
+	email.addEventListener('drop', drop);
+  email.addEventListener('input', (ev)=>{ clearTimeout(inputTimer); inputTimer=setTimeout(()=>{search(ev);}, 10) } );  //catch too quick input
+  window.focus(); //neccessary since TB88 for email.focus() to work
+	email.focus();
+	document.getElementById("ab").addEventListener('click', openAB);
+	document.getElementById("body").addEventListener('keydown', bodykey);
+	document.getElementById("accountsel").addEventListener('change', accountchange);
+	//document.getElementById("maxConn").addEventListener('change', changemaxconn);
+	document.getElementById("changefrom").addEventListener('change', togglechangefrom);
+	// document.getElementById("closeonsuccess").addEventListener('change', togglecloseonsuccess);
+	document.getElementById("delay").addEventListener('change', changedelay);
+	document.getElementById("debug").addEventListener('change', toggledebug);
+	//document.getElementById("default").addEventListener('click', setDefaultAddresses);
+	//document.getElementById("default").addEventListener('mouseenter', tooltip);
+	//document.getElementById("restore").addEventListener('click', restoreDefaultAddresses);
+	//document.getElementById("restore").addEventListener('mouseenter', tooltip);
+	document.getElementById("ab").addEventListener('mouseenter', tooltip);
+	document.getElementById("deleteAddresses").addEventListener('click', removeResentAddr);
+	document.getElementById("extrasAblageButton").addEventListener('click', toggleExtrasAblage);
+	// document.getElementById("defName").addEventListener('input', (event)=>{
     //   if (event.target.value) event.target.classList.remove('defName');
     //                      else event.target.classList.add('defName');});
 
     let msgSubjects="";
 
-    msgs = await messenger.runtime.sendMessage({action: "requestData", prefs: prefs});
-    msgCount=msgs.length;
-    let mails=document.getElementById("mails");
-    let tbody=mails.firstChild;
-    if (tbody.tagName!='tbody') tbody=tbody.nextSibling;
-    msgs.forEach(msg=>{
-        origAcctId=msg.folder.accountId; //use account from last mail
+	msgs = await messenger.runtime.sendMessage({action: "requestData", prefs: prefs});
+  msgCount=msgs.length;
+  let mails=document.getElementById("mails");
+  let tbody=mails.firstChild;
+  if (tbody.tagName!='tbody') tbody=tbody.nextSibling;
+	msgs.forEach(msg=>{ 
+    origAcctId=msg.folder.accountId; //use account from last mail
         // TODO: accounts may be different if mails come from a virtual folder
-        msg.sending=false;
-        let d=new Date(msg.date);
-        let date=d.toLocaleString();
-        let tr=document.createElement('tr');
-        tr.id="msg_"+msg.id;
-        let td=document.createElement('td');
-        td.textContent=' ';
-        td.className="remove";
-        td.addEventListener('click', removeMsg);
-        tr.appendChild(td);
-        td=document.createElement('td');
-        td.textContent=msg.subject;
-        tr.appendChild(td);
-        td=document.createElement('td');  //progressbar
-        //td.className='pb';
-        tr.appendChild(td);
-        td=document.createElement('td');
-        td.textContent=msg.author;
-        tr.appendChild(td);
-        td=document.createElement('td');
-        td.textContent=date;
-        tr.appendChild(td);
-        tbody.appendChild(tr);
+    msg.sending=false;
+    let d=new Date(msg.date);
+    let date=d.toLocaleString();
+    let tr=document.createElement('tr');
+    tr.id="msg_"+msg.id;
+    let td=document.createElement('td');
+    td.textContent=' ';
+    td.className="remove";
+    td.addEventListener('click', removeMsg);
+      let img=document.createElement('img');
+      td.appendChild(img);
+    tr.appendChild(td);
+    td=document.createElement('td');
+    td.textContent=msg.subject;
+    tr.appendChild(td);
+    td=document.createElement('td');  //progressbar
+    //td.className='pb';
+    tr.appendChild(td);
+    td=document.createElement('td');
+    td.textContent=msg.author;
+    tr.appendChild(td);
+    td=document.createElement('td');
+    td.textContent=date;
+    tr.appendChild(td);
+    tbody.appendChild(tr);
         if (msg.subject && msgSubjects.length === 0) {
             msgSubjects += msgSubjects + msg.subject;
         } else if (msg.subject) {
@@ -396,13 +414,13 @@ debug('we already have a listener');
     });
     await addResentFiles(msgSubjects);
 
-    let ae=document.getElementById('accountsel');
-    let accounts;
-    try {
-        accounts=await messenger.accounts.list();	//array of MailAccount
-    } catch(e) {
-        debug('%-sign in foldernames problem, see bug 1684327');
-        const msg='<div style="color: red;"><div style="margin: 2em;">Bitte entfernen sie alle %-Zeichen aus Ordnernamen!<br/>\
+  let ae=document.getElementById('accountsel');
+  let accounts;
+  try {
+    accounts=await messenger.accounts.list();	//array of MailAccount
+  } catch(e) {
+debug('%-sign in foldernames problem, see bug 1684327');
+    const msg='<div style="color: red;"><div style="margin: 2em;">Bitte entfernen sie alle %-Zeichen aus Ordnernamen!<br/>\
 Es gibt einen Fehler in Thunderbird, der die Ausführung dieses Add-ons verhindert.<br/>Siehe Bug 1684327</div>\
 <div style="margin: 2em;">Please remove any %-signs from foldernames!<br/>\
 There is a bug in Thunderbird which prevents this add-on from running.<br/>See Bug 1684327</div></div>';
@@ -477,9 +495,12 @@ debug('using '+defAcctId+' '+defIdenId);
         o.value=account.id+'|'+identity.id;
         if (account.id==defAcctId && identity.id==defIdenId) {
           o.selected=true;
+					//let mc=document.getElementById('maxConn');
+          //mc.value=prefs.maxConn[o.value]??4; //TODO: should be indexed by smtp-server, not by account|identity
+          //mc.name=o.value;
 					let cf=document.getElementById('changefrom');
-					let cfb=document.getElementById('changefrombox');
-					cf.value=o.value;
+					let cfb=document.getElementById('changefromBox');
+					cf.name=o.value;
 					if (prefs.changefrom[o.value]) {
 						cfb.style.display='block';
 						cf.checked=true;
@@ -513,12 +534,12 @@ debug('using '+defAcctId+' '+defIdenId);
 	document.getElementById('delay').value=prefs.delay;
 	document.getElementById('debug').checked=prefs.debug;
 
-    let body=document.getElementById("body");
-    let size=prefs.size;
-    if (!size) size=12;
-    prefs.size=12;
-    body.style.fontSize = size+"px";
-    body.style.display = "block";
+	let body=document.getElementById("body");
+	let size=prefs.size;
+	if (!size) size=12;
+	prefs.size=12;
+	body.style.fontSize = size+"px";
+	body.style.display = "block";
 
 // communication with cardbook, cardbook needs to use NotifyTools
 	let have_cardbook=0;
@@ -605,9 +626,11 @@ debug('cb_lists: '+JSON.stringify(cb_lists));
 function accountchange(ev) {
   let acct=ev.target.value;
 debug('account now '+acct);
+  //let mc=document.getElementById('maxConn');
+  //mc.value=prefs.maxConn[acct]??4; //TODO: should be indexed by smtp-server, not by account|identity
   let cf=document.getElementById('changefrom');
-  let cfb=document.getElementById('changefrombox');
-  cf.value=acct;
+  let cfb=document.getElementById('changefromBox');
+  cf.name=acct;
 	if (prefs.changefrom[acct]) {
 		cfb.style.display='block';
 		cf.checked=true;
@@ -616,9 +639,16 @@ debug('account now '+acct);
 		cf.checked=false;
 	}
 }
+
+function changemaxconn(ev) {
+	prefs.maxConn[ev.target.name]=ev.target.value; //TODO: should be indexed by smtp-server, not by account|identity
+debug('maxConn for '+ev.target.name+' now '+(prefs.maxConn[ev.target.name]));
+debug(JSON.stringify(prefs));
+  messenger.storage.local.set(prefs);
+}
 function togglechangefrom(ev) {
-	prefs.changefrom[ev.target.value]=ev.target.checked;
-debug('changefrom for '+ev.target.value+' now '+(prefs.changefrom[ev.target.value]?'on':'off'));
+	prefs.changefrom[ev.target.name]=ev.target.checked;
+debug('changefrom for '+ev.target.name+' now '+(prefs.changefrom[ev.target.name]?'on':'off'));
 debug(JSON.stringify(prefs));
   messenger.storage.local.set(prefs);
 }
@@ -629,7 +659,7 @@ async function search(ev) {
   let results=document.getElementById('results');
   validate(ev.target);
 	let sv=ev.target.value;
-//debug('search '+sv);
+debug('search '+sv);
   if (sv.length<2) {
     if (results) results.style.display='none';
     return;
@@ -763,7 +793,7 @@ function drop(ev) {
 function newInput(elem) {
 //debug('generate new input field');
   let addr=elem.parentNode; //flex container
-  let to=addr.firstChild.value;
+	let to=addr.firstChild.value;
   let na=addr.nextSibling;
 //debug('newInput next is '+ni);
   if (!na) {
@@ -781,8 +811,7 @@ function newInput(elem) {
     addr.parentNode.appendChild(na);
     ni.focus();
   }
-  //document.getElementsByTagName('body')[0].scrollIntoView(false);
-  document.getElementsByTagName('html')[0].scrollIntoView(false);
+  document.getElementsByTagName('body')[0].scrollIntoView(false);
   return na;
 }
 
@@ -818,7 +847,7 @@ async function bodykey(ev) {
 			hidden='w';
     } else if (ev.key == "f" && hidden=='w') {
 			hidden='';
-			document.getElementById('changefrombox').style.display='block';
+			document.getElementById('changefromBox').style.display='block';
 		} else {
 			hidden='';
 		}

@@ -14,7 +14,7 @@ https://thunderbird.topicbox.com/groups/addons/
 
 ## Addon xpi erstellen
    * cd addon-dir
-   * zip -r -FS ../my-extension.xpi * --exclude '*.git*' (--exclude optional)
+   * zip -r -FS ../xpi-install-files/my-extension.xpi * --exclude '*.git*' (--exclude optional)
 
 ## Notes
    * console.log in background.js wird nur im Debug Modus angezeigt

@@ -7,9 +7,10 @@ const { AddonManager } = ChromeUtils.import("resource://gre/modules/AddonManager
 const { MailServices }=ChromeUtils.import("resource:///modules/MailServices.jsm");
 const { MailUtils }=ChromeUtils.import("resource:///modules/MailUtils.jsm");
 const { FileUtils }=ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+var MsgUtils;
 try {
-  var { MsgUtils }=ChromeUtils.import("resource:///modules/MimeMessageUtils.jsm");
-} catch(e) { var MsgUtils=null; /* TB78 */ }
+  MsgUtils=ChromeUtils.import("resource:///modules/MimeMessageUtils.jsm").MsgUtils;
+} catch(e) { MsgUtils=null; /* TB78 */ }
 
 var chromeHandle=null;	//for cardbook
 var cardbookRepository;
@@ -47,6 +48,7 @@ debug('onShutdown isAppShutdown='+isAppShutdown);
   getAPI(context) {
 debug('getApi entered');	//more than once! (on App start and when redirect window opens
     if (!gContext) {
+debug('no gContext yet');
       gContext=context;
       extension=context.extension;
       context.callOnClose(this);
@@ -69,14 +71,14 @@ debug('  stylesheet timer='+timer+' context='+context);
           let m3p = Services.wm.getMostRecentWindow("mail:3pane");
 debug('screen='+m3p.screen.width+'x'+m3p.screen.height);
           initcalled=true;
-					return m3p.screen;
+					return {width: m3p.screen.width, height: m3p.screen.height};
 				},
         redirect: async function(mhs, rts, params, windowId, options) {
           prefs=options;
-debug('redirect from window '+windowId);
-debug('prefs='+JSON.stringify(prefs));
-mhs.forEach(mh=>debug('redirect '+(!mh.sending?'but skipped ':'')+mh.subject+' ('+mh.author+')'));
-rts.forEach(addr=>debug('resentTo '+addr.to+' '+addr.email));
+debug('redirect from window windowId='+windowId);
+//debug('prefs='+JSON.stringify(prefs));
+//mhs.forEach(mh=>debug('redirect '+(!mh.sending?'but skipped ':'')+mh.subject+' ('+mh.author+')'));
+//rts.forEach(addr=>debug('resentTo '+addr.to+' '+addr.email));
 
           // cleanup from vanished windows
           for (let wid in windows) {
@@ -90,11 +92,19 @@ rts.forEach(addr=>debug('resentTo '+addr.to+' '+addr.email));
           windows[windowId].msgCount=mhs.length;
           mhs.forEach(mh=>{
             if (mh.sending) { // skip already successfull send messages
+              mh.state='waiting';
               windows[windowId][mh.id]=mh;
-              windows[windowId][mh.id].state='started';
+              windows[windowId][mh.id].msgHdr=context.extension.messageManager.get(mh.id);
+              if (windows[windowId].fire) {
+debug('waiting: notify popup window');
+                windows[windowId].fire.async({msgid: mh.id, type: 'waiting'});
+              } else {
+debug('waiting: popup window has vanished');
+              }
             }
           });
           windows[windowId].allowResend=false;
+          windows[windowId].params=params;
 //TEST:
 //mhs.forEach(mh=>windows[windowId][mh.id]['msgSend']='send_'+mh.id);
           let resent=new Object();
@@ -103,13 +113,18 @@ rts.forEach(addr=>debug('resentTo '+addr.to+' '+addr.email));
             resent[addr.to]+=addr.email;
           });
 debug('resent='+JSON.stringify(resent));
-          let accountId=params.accountId; //mh.folder.accountId;
-          let identity = MailServices.accounts.getIdentity(params.identityId);
-          mhs.forEach((mh) => {
+          windows[windowId].resent=resent;
+          let accountId=windows[windowId].accountId=params.accountId; //mh.folder.accountId;
+          let identity=windows[windowId].identity=MailServices.accounts.getIdentity(params.identityId);
+          let maxConn=4;
+debug('using maxConn='+maxConn);
+          mhs.every((mh) => {
             if (mh.sending) {
-              let msgHdr=context.extension.messageManager.get(mh.id);
-              prepareMessage(msgHdr, accountId, identity, params, resent, windowId, mh.id);
+              mh.state='started';
+              prepareMessage(windows[windowId][mh.id].msgHdr, accountId, identity, params, resent, windowId, mh.id);
+              if (maxConn && --maxConn==0) return false;  //break out of loop
             }
+            return true;  //continue
           });
 				},
         abort: async function(windowId, msgId) {
@@ -379,8 +394,18 @@ function cardBookSearch(aCard) {
 }
 
 ////////////////////////////////////////////////////////////////
-function prepareMessage(msgHdr, accountId, identity, params, resent, windowId, msgId) {
+async function prepareMessage(msgHdr, accountId, identity, params, resent, windowId, msgId) {
 debug('got msgHdr id='+msgHdr.messageKey);
+  if (windowId) {
+    if (windows[windowId].fire) {
+debug('converting: notify popup window');
+      windows[windowId].fire.async({msgid: msgId, type: 'converting'});
+    } else {
+debug('converting: popup window has vanished');
+    }
+  } else {
+debug('converting: called from filter');
+  }
 /*obsolete
   let mAccountId=mh.folder.accountId;
   let path=mh.folder.path;
@@ -507,6 +532,8 @@ debug('   success but abort: set to failed');
 //TB91:
 //aStatus=2153066725 (0x805530e5, NS_ERROR_SENDING_MESSAGE) if web.de problem
 //aStatus=2153066783 (0x8055311F, NS_ERROR_SENDING_RCPT_COMMAND) if status=550, recipient unknown
+//aStatus=2153066732 (0x805530EC, NS_ERROR_SMTP_SERVER_ERROR) all kind of errors
+//    status=421, temporary failure (too many connections (concurrent or in a specified time interval))
 //aStatus is one of MsgUtils.NS_ERROR_SMTP_... errors, defined in modules/MimeMessageUtils.jsm in TB91
 if (MsgUtils!=null) debug('MsgSend returned bad status: '+MsgUtils.getErrorStringName(aStatus));
 //      if (aStatus==MsgUtils.NS_ERROR_SENDING_RCPT_COMMAND) allowResend='badRCPT';
@@ -548,12 +575,27 @@ debug('finished: popup window has vanished');
     }
     windows[this.windowId][this.msgId].state='finished';
     windows[this.windowId].msgCount--;
+/*
 for (const [windowId, data] of Object.entries(windows)) {
   for (const [msgId, mh] of Object.entries(data)) {
     if (isNaN(msgId)) debug(`cache ${windowId} ${msgId} ${mh}`);
-    else debug(`cache msgId ${windowId} ${msgId} ${mh.id} ${mh.msgSend} ${mh.subject}`);
+    else debug(`cache msgId ${windowId} ${msgId} ${mh.id} ${mh.state} ${mh.subject}`);
   }
 }
+*/
+    // start next message if there is one waiting
+    let windowId=this.windowId;
+    for (const [msgId, msg] of Object.entries(windows[windowId])) {
+      if (isNaN(msgId)) continue; //.fire or other
+      if (!msg.sending || msg.state!='waiting') continue;
+debug('maxConn: next message: '+msgId+' '+msg.subject);
+      let msgHdr=gContext.extension.messageManager.get(msgId);
+      msg.state='started';
+      prepareMessage(msg.msgHdr, windows[windowId].accountId, windows[windowId].identity,
+          windows[windowId].params, windows[windowId].resent, windowId, msgId);
+      break;
+    }
+
     if (!windows[this.windowId].msgCount && !windows[this.windowId].allowResend) {
 debug('delete windowId '+this.windowId);
       delete windows[this.windowId];
@@ -572,6 +614,7 @@ debug('nsMsgSendListener.onSendNotPerformed: msgId='+aMsgID+' status='+aStatus);
   onTransportSecurityError(msgID, status, secInfo, location) {	//no
 debug('nsMsgSendListener.onTransportSecurityError');
   }
+
 }
 
 ////////////////////////////////////////////
