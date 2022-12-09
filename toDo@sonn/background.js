@@ -35,9 +35,8 @@ async function main() {
 
                 if(imapUid) {
                     // let query = "?uid=" + imapUid + ";subject=" + encodeURIComponent(copiedMessage.subject);
-                    let query = "=?uid" + imapUid +
-                                (copiedMessage.subject ? ";subject=" + encodeURIComponent(copiedMessage.subject) : "");
-                    browser.windows.openDefaultBrowser(baseUrl + "/" + query);
+                    let query = "msgID=" + imapUid.toString();
+                    browser.windows.openDefaultBrowser(baseUrl + "?" + query);
                 } else {
                     browser.notifications.create({
                         "type": "basic",
