@@ -39,7 +39,8 @@ async function main() {
                 }
 
                 if(headerMessageId) {
-                    const query = "msgID=" + headerMessageId.toString();
+                    const query = "msgID=" + encodeURIComponent(headerMessageId);
+                    await new Promise(r => setTimeout(r, 500));
                     browser.windows.openDefaultBrowser(baseUrl + "?" + query);
                 } else {
                     browser.notifications.create({
