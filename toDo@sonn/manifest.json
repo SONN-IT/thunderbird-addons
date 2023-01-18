@@ -24,7 +24,7 @@
   "message_display_action": {
     "default_title": "Todo add",
     "default_icon": "logo.svg",
-    "default_label": "TODO"
+    "default_label": "ToDo"
   },
     "experiment_apis": {
       "ImapTools": {
