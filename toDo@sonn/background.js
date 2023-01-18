@@ -10,12 +10,12 @@ async function main() {
     // console.log("message: ", message);
     if (!message) {return 0}
 
-    if (message.folder.path === "/Drafts") {
-        // console.log("drafts mail: exit")
+    if (message.folder.path === "/Trash") {
+        // console.log("trash mail: exit")
         browser.notifications.create({
             "type": "basic",
             "title": "Thunderbird - ToDo",
-            "message": "Entwürfe können nicht für ToDo's verwendet werden"
+            "message": "E-Mails im Papierkorb können nicht für ToDo's verwendet werden"
         });
     } else {
         browser.messages.onCopied.addListener(async function copiedMessageListener(originalMessages, copiedMessages) {
@@ -56,7 +56,7 @@ async function main() {
         try {
             await browser.messages.copy([message.id], {
                 accountId: message.folder.accountId,
-                path: '/Drafts'
+                path: '/Trash'
             });
         } catch (e) {
             // console.log("Failed to copy message: ", e);

@@ -1,7 +1,7 @@
 {
     "name": "ToDo",
     "description": "ToDo",
-    "version": "1.0-rc7",
+    "version": "1.0",
     "applications": {
       "gecko": {
         "id": "toDo@sonn.at",
@@ -23,6 +23,7 @@
     },
   "message_display_action": {
     "default_title": "Todo add",
+    "default_icon": "logo.svg",
     "default_label": "TODO"
   },
     "experiment_apis": {
@@ -43,5 +44,11 @@
         }
       }
     },
-    "manifest_version": 2
+    "manifest_version": 2,
+  "icons": {
+    "16": "logo.svg",
+    "32": "logo.svg",
+    "48": "logo.svg",
+    "96": "logo.svg"
+  }
 }
