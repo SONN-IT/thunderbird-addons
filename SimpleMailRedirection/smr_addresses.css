@@ -149,7 +149,7 @@ select {
 
 /* select list for possible addresses */
 #results {
-	position: relativ;
+	position: relative;
 	margin-left: 20px;
 }
 
@@ -202,8 +202,10 @@ progress {
   visibility: hidden;
 }
 
-.defName {
+#defName {
   width: 8em;
+}
+.defName {
   /* background: url("chrome://global/skin/icons/arrow-down-12.svg") no-repeat right center; */
   background: url("skin/arrow-down-12.svg") no-repeat right center;
 	background-color: var(--in-content-box-background);

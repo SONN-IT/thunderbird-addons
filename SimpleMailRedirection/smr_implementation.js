@@ -10,6 +10,7 @@ const { FileUtils }=ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 var MsgUtils;
 try {
   MsgUtils=ChromeUtils.import("resource:///modules/MimeMessageUtils.jsm").MsgUtils;
+  var { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
 } catch(e) { MsgUtils=null; /* TB78 */ }
 
 var chromeHandle=null;	//for cardbook
@@ -545,9 +546,14 @@ if (MsgUtils!=null) debug('MsgSend returned bad status: '+MsgUtils.getErrorStrin
       try { this.tmpFile.remove(false); } catch(e) { /* already removed */ }
     } else {
       // mark message as 'resent'
-      let messenger = Cc["@mozilla.org/messenger;1"].
-                      createInstance(Ci.nsIMessenger);
-      let msgService = messenger.messageServiceFromURI(this.msgUri);
+      let msgService;
+      if (MailServices.messageServiceFromURI) {   //since TB111
+        msgService = MailServices.messageServiceFromURI(this.msgUri);
+      } else {
+        let messenger = Cc["@mozilla.org/messenger;1"].
+                        createInstance(Ci.nsIMessenger);
+        msgService = messenger.messageServiceFromURI(this.msgUri);
+      }
       let msgHdr = msgService.messageURIToMsgHdr(this.msgUri);
 
 			let msg;
@@ -561,9 +567,26 @@ if (MsgUtils!=null) debug('MsgSend returned bad status: '+MsgUtils.getErrorStrin
       try {
         msgHdr.folder.addKeywordsToMessages(msg, "redirected");
       } catch(e) {
-debug(e);
+debug('addKeywords throws: '+e);
       }
-//debug('keywords set to: '+msgHdr.getStringProperty("keywords"));
+debug('keywords now set to: '+msgHdr.getStringProperty("keywords"));
+
+      //set 'redirected' flag to message (available since TB91)
+      try {
+//nsMsgMessageFlags::Redirected== 0x00002000;
+//debug('old message flags: '+msgHdr.flags+' (redirected=0x2000)');
+        let msgDB=msgHdr.folder.msgDatabase;
+        let msgKey=msgHdr.messageKey;
+        if (msgDB.markRedirected)
+          msgDB.markRedirected(msgKey, true, null); // since TB108(?)
+        else
+          msgDB.MarkRedirected(msgKey, true, null); // up to TB107(?)
+debug('added redirected flag');
+//debug('set redirected flag, now: '+msgHdr.flags);
+      } catch(e) {
+debug('add redirected flag throws: '+e);
+      }
+
     }
     if (!this.windowId) return;  //filter
     if (windows[this.windowId].fire) {
@@ -635,8 +658,6 @@ debug('writing message to '+tmpFile.path);
 				prefs.changefrom[accountId+'|'+identity.key]:false;   //workaround web.de
 debug('workaround changeFrom for '+accountId+'|'+identity.key+' is '+changeFrom);
 
-  let messenger = Cc["@mozilla.org/messenger;1"].
-                  createInstance(Ci.nsIMessenger);
   let aScriptableInputStream = Cc["@mozilla.org/scriptableinputstream;1"].
                                createInstance(Ci.nsIScriptableInputStream);
   let aFileOutputStream = Cc["@mozilla.org/network/file-output-stream;1"].
@@ -768,7 +789,7 @@ debug("Lineending LF (Linux/MacOS)");
 debug("Lineending CR/LF (Windows)");
 				}
 				// write out Resent-* headers
-				let resenthdrs = getResentHeaders(msgCompFields);
+				let resenthdrs = getResentHeaders(msgCompFields, identity);
 debug('resent with account='+accountId+' identity='+identity.fullName+' <'+identity.email+'> => sender='+msgCompFields.from);
 				aFileOutputStream.write(resenthdrs, resenthdrs.length);
 			}
@@ -813,7 +834,6 @@ debug('workaround changeFrom: add '+replyTo);
                   debug("!! inHeader write error? line len "+ replyTo.length + ", written "+ ret);
                 }
               }
-
               aFileOutputStream.write(line+"\r\n", line.length+2);
               inHeader = false;
 //debug("End of headers");
@@ -910,7 +930,14 @@ debug('removed line: ' + line);
     } //End of onDataAvailable
   } // End of aCopyListener
 
-  var msgService = messenger.messageServiceFromURI(uri);
+  var msgService;
+  if (MailServices.messageServiceFromURI) {   //since TB111
+    msgService = MailServices.messageServiceFromURI(uri);
+  } else {
+    let messenger = Cc["@mozilla.org/messenger;1"].
+                    createInstance(Ci.nsIMessenger);
+    msgService = messenger.messageServiceFromURI(uri);
+  }
 
   try {
     aFileOutputStream.init(tmpFile, -1, parseInt("0600", 8), 0);
@@ -919,26 +946,46 @@ debug('aFileOutputStream.init() failed:' + e);
     return;
   }
 
-  var newURI = {};
 
-  let msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(Ci.nsIMsgWindow);
-  msgService.CopyMessage(
-      uri,
-      aCopyListener,
-      false,     // aMoveMessage
-      null,      // aUrlListener,
-      msgWindow, // msgWindow,
-      newURI);
-
-//debug('newURI = '+newURI.value.spec);
-  newURI = null;
+  //let msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(Ci.nsIMsgWindow);
+  try { // up to TB113
+    let newURI = {};
+    msgService.CopyMessage(uri, aCopyListener, false, null, null/*msgWindow*/, newURI);
+debug('copied to newURI = '+newURI.value.spec);
+    //newURI = null;
+  } catch(e) {  // since TB114
+    msgService.copyMessage(uri, aCopyListener, false, null, null/*msgWindow*/);
+  }
 }
 
-function getResentHeaders(msgCompFields)
+function getResentHeaders(msgCompFields, identity)
 {
+  let resenthdrs='';
+
+  // add default custom headers (from mail.identity.(default|idn).headers)
+  //TB78: nsMsgComposeAndSend::AddDefaultCustomHeaders() in comm/mailnews/compose/src/nsMsgSend.cpp
+  if (MsgUtils) { //since TB91
+    //see modules/MimeMessage.jsm#219
+    let headers=new Map();
+    for (let { headerName, headerValue } of 
+      MsgUtils.getDefaultCustomHeaders(identity)) {
+debug('custom header "'+headerName+': '+headerValue+'"');
+        headers.set(headerName, [headerValue]);
+      }
+    if (headers.size) {
+      // see modules/MimePart.jsm#195
+      let h=jsmime.headeremitter.emitStructuredHeaders(headers, {
+        useASCII: true,
+        sanitizeDate: false,
+      });
+debug('custom headers inject "'+h+'"');
+      resenthdrs+=h;
+    }
+  }
+
   //the msgCompFields fields are already quoted printable
   //encodeMimeHeader splits them into multiple lines
-  let resenthdrs = encodeMimeHeader("Resent-From: " + msgCompFields.from);
+  resenthdrs += encodeMimeHeader("Resent-From: " + msgCompFields.from);
   if (msgCompFields.to) {
     resenthdrs += encodeMimeHeader("Resent-To: " + msgCompFields.to);
   }
@@ -1032,10 +1079,7 @@ function getResentDate()
   let minutes = offset % 60;
   offset = (offset - minutes) / 60;
   function twoDigits(aNumber) {
-    if (aNumber == 0) {
-      return "00";
-    }
-    return aNumber < 10 ? "0" + aNumber : aNumber;
+    return aNumber < 10 ? "0"+aNumber : aNumber.toString();
   }
   dateTime+=twoDigits(offset) + twoDigits(minutes);
 debug('resentDate: '+dateTime);
