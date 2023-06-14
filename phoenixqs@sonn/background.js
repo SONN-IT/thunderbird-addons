@@ -24,7 +24,7 @@ function SendToSIN() {
         browser.messageDisplay.getDisplayedMessage(tabId).then(async (message) => {
             let qsurl = "https://sin-phoenix.sonn.intern/QuickSearch.search?q=";
             let subject = message.subject;
-            let file_match = subject.match(/\b([RM] ?\d{4,5}(\/[A-Z]{2})?|K ?\d{4,5}|J ?\d{4,5}(\/\d{1,2})?|[EGU] ?\d{4}|S ?\d{3})\b/gi)
+            let file_match = subject.match(/\b([RM] ?\d{4,5}(\/[A-Z]{2})?|K ?\d{4,5}|J ?\d{4,5}(\/\d{1,2})?|[EGU] ?\d{4,5}|S ?\d{3})\b/gi)
 
             // remove duplicates
             if(file_match && file_match.length > 1) {
