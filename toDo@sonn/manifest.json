@@ -1,6 +1,6 @@
 {
     "name": "ToDo",
-    "description": "ToDo",
+    "description": "Thunderbird Add-On für das (experimentelle) SIN ToDo Feature",
     "version": "1.0",
     "applications": {
       "gecko": {
