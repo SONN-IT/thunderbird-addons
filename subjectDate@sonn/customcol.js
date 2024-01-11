@@ -114,7 +114,7 @@ const columnOverlay = {
       return;
     }
 
-    const threadCols = win.document.getElementById("threadCols");
+    const threadCols = win.document.getElementById("tree-table-header");
     let ordinals = [];
     let treecols = threadCols.querySelectorAll("treecol");
     treecols.forEach((elem) => {
