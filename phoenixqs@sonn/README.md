@@ -1,1 +1,0 @@
-Öffnet Akten im SIN
